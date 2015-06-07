@@ -8,9 +8,9 @@ categories: jekyll update
 关卡1 创建一个自定义button
 -------------------------------------------------------------------------------
 
-1. UIButton* button = [UIButton buttonWithType:UIButtonTypeCustom];
-2. button.frame = CGRectMake(0, 0, 100, 100);
-3. button.center = self.view.center; //居中
+	1. UIButton* button = [UIButton buttonWithType:UIButtonTypeCustom];
+	2. button.frame = CGRectMake(0, 0, 100, 100);
+	3. button.center = self.view.center; //居中
 
 //使用图片的颜色扩展来生成纯色的图片
 [button setImage:[UIImage imageWithColor:[UIColor redColor] size:button.bounds.size] forState:UIControlStateNormal]; //常态为红色
