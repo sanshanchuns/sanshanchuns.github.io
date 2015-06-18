@@ -6,19 +6,17 @@ categories: jekyll update
 ---
 
 -archivePath 选项不起作用
-xctool -workspace licaishi.xcworkspace -scheme licaishi archive -archivePath ./
+	xctool -workspace licaishi.xcworkspace -scheme licaishi archive -archivePath ./
 
-fir b . -w -S [your scheme]
-fir login
-fir p build_ipa/[your scheme].ipa
+	fir b . -w -S [your scheme]
+	fir login
+	fir p build_ipa/[your scheme].ipa
 
 默认 fir 使用 xcode 所选签名, 那么 fir命令 如何指定包的签名呢?
-fir b . -w -C Release -S licaishi CODE_SIGN_IDENTITY="iPhone Distribution: Shanghai Noah Yijie Financial Tech Co., Ltd." -p
+
+	fir b . -w -C Release -S licaishi CODE_SIGN_IDENTITY="iPhone Distribution: Shanghai Noah Yijie Financial Tech Co., Ltd." -p
+	
 如此一来一条指令急速发布
-
-
-/usr/bin/codesign --force --sign 7E04DDA5FF5B62553038C24D868167A5019A625D /var/folders/0w/6tr8ms3n0_s6yn6nglnlktz00000gn/T/d20150617-57778-gncx9v/licaishi.app
-
 
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
