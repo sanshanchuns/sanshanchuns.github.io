@@ -5,17 +5,20 @@ date:   2015-06-06 12:42:26
 categories: jekyll update
 ---
 
--archivePath 选项不起作用
-	xctool -workspace licaishi.xcworkspace -scheme licaishi archive -archivePath ./
+facebook 的 xctool 是 xcodebuild 命令的改良版
 
-	fir b . -w -S [your scheme]
+	xctool -workspace licaishi.xcworkspace -scheme licaishi -configuration Release
+
+只有打包是不行的, 最终的目标还是要给到测试同学, 那么 fir.im 就是不错的选择, 去他们官网搞起来吧
+
+	fir b . -w -S [your scheme] #编译 -w 表示编译 xcworkspace, 这里xcode需要指定 InHouse 的企业证书($299)
 	fir login
-	fir p build_ipa/[your scheme].ipa
+	fir p build_ipa/[your scheme].ipa #发布到 fir.im, 测试同学可以下载拉
 
-默认 fir 使用 xcode 所选签名, 那么 fir命令 如何指定包的签名呢?
+默认 fir 使用 xcode 所选签名, 那么 fir命令 如何指定包的签名呢? 每次都要xcode切换签名肯定灰常麻烦.
 
 	fir b . -w -C Release -S licaishi CODE_SIGN_IDENTITY="iPhone Distribution: Shanghai Noah Yijie Financial Tech Co., Ltd." -p
-	
+
 如此一来一条指令急速发布
 
 [jekyll]:      http://jekyllrb.com
