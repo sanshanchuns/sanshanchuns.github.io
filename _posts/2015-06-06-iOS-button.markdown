@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "About UIButton"
+title:  "iOS UIButton"
 date:   2015-06-06 12:42:26
 categories: jekyll update
 ---
