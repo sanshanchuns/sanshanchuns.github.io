@@ -1,0 +1,72 @@
+---
+layout: post
+title:  "iOS UIButton"
+date:   2015-06-06 12:42:26
+categories: jekyll update
+---
+
+.gitignore
+
+	文档
+	git clone git@github.com:github/gitignore.git
+
+---
+
+	# Xcode
+	#
+	# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+
+	## Build generated
+	build/
+	DerivedData
+
+	## Various settings
+	*.pbxuser
+	!default.pbxuser
+	*.mode1v3
+	!default.mode1v3
+	*.mode2v3
+	!default.mode2v3
+	*.perspectivev3
+	!default.perspectivev3
+	xcuserdata
+
+	## Other
+	*.xccheckout
+	*.moved-aside
+	*.xcuserstate
+	*.xcscmblueprint
+
+	## Obj-C/Swift specific
+	*.hmap
+	*.ipa
+
+	# CocoaPods
+	#
+	# We recommend against adding the Pods directory to your .gitignore. However
+	# you should judge for yourself, the pros and cons are mentioned at:
+	# http://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
+	#
+	#Pods/
+
+	# Carthage
+	#
+	# Add this line if you want to avoid checking in source code from Carthage dependencies.
+	# Carthage/Checkouts
+
+	Carthage/Build
+
+---
+
+I have a repository with a file Hello.java. When I compile it an additional Hello.class file is generated.
+I created an entry for Hello.class in a .gitignore file. However the file still appears to be tracked.
+I want to know how to make git ignore Hello.class.
+The problem is that .gitignore ignores just files that weren't tracked before (by git add). Run git rm --cached name_of_file and your file will be ignored again (in case it's mentioned in .gitignore).
+
+	git rm --cached name_of_file  #删除缓存中已经追踪的文件, .gitignore 就会生效 
+
+
+
+[jekyll]:      http://jekyllrb.com
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-help]: https://github.com/jekyll/jekyll-help
