@@ -1,9 +1,11 @@
 ---
 layout: post
-title:  "iOS UIButton"
-date:   2015-06-06 12:42:26
+title:  "git"
+date:   2015-06-25 12:42:26
 categories: jekyll update
 ---
+
+#1. 关于 .gitignore 文件
 
 .gitignore
 
@@ -64,6 +66,38 @@ I want to know how to make git ignore Hello.class.
 The problem is that .gitignore ignores just files that weren't tracked before (by git add). Run git rm --cached name_of_file and your file will be ignored again (in case it's mentioned in .gitignore).
 
 	git rm --cached name_of_file  #删除缓存中已经追踪的文件, .gitignore 就会生效 
+
+
+#2. 关于 .gitconfig 文件
+
+	[user]
+		name = your_name
+		email = your_email
+	[color]
+		diff = auto
+		status = auto
+		branch = auto
+		interactive = true
+		ui = true
+	[alias]
+		hist = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+		co = checkout
+		ci = commit
+		st = status
+		br = branch
+		type = cat-file -t
+		dump = cat-file -p
+	[core]
+		autocrlf = false
+	[http]
+		postBuffer = 2M
+	[push]
+		default = matching
+
+
+#3. 关于 oh my zsh  - 好用的命令行终端
+
+	curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 
 
 
