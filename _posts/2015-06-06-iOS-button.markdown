@@ -4,11 +4,11 @@ title:  "iOS UIButton"
 date:   2015-06-06 12:42:26
 categories: jekyll update
 ---
-##### 1. 按钮没有设置高亮态 但却会响应 UIControlStateHighlighted, 默认使用了一层灰色蒙层, 如何忽略高亮?
+#### 1. 按钮没有设置高亮态 但却会响应 UIControlStateHighlighted, 默认使用了一层灰色蒙层, 如何忽略高亮?
 
 	button.adjustsImageWhenHighlighted = NO;
 
-##### 2. cornerRadius只能控制底层layer的圆角, UIButton 除了底层layer, 还有 backgroundImageLayer, imageLayer(labelLayer), 如何更改上层layer的圆角?
+#### 2. cornerRadius只能控制底层layer的圆角, UIButton 除了底层layer, 还有 backgroundImageLayer, imageLayer(labelLayer), 如何更改上层layer的圆角?
 
 	//拉伸前景图片
 	[image resizableImageWithCapInsets:UIEdgeInsetsMake(image.size.height/2, image.size.width/2, image.size.height/2, image.size.width/2) resizingMode:UIImageResizingModeStretch]

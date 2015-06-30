@@ -68,7 +68,7 @@ The problem is that .gitignore ignores just files that weren't tracked before (b
 	git rm --cached name_of_file  #删除缓存中已经追踪的文件, .gitignore 就会生效 
 
 
-##### 2. 关于 .gitconfig 文件
+#### 2. 关于 .gitconfig 文件
 
 	[user]
 		name = your_name
@@ -95,7 +95,7 @@ The problem is that .gitignore ignores just files that weren't tracked before (b
 		default = matching
 
 
-##### 3. 关于 oh my zsh  - 好用的命令行终端
+#### 3. 关于 oh my zsh  - 好用的命令行终端
 
 	curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 
