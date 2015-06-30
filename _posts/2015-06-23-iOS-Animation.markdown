@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "iOS 发布"
+title:  "iOS Animation"
 date:   2015-06-06 12:42:26
 categories: jekyll update
 ---

@@ -5,6 +5,14 @@ date:   2015-06-06 12:42:26
 categories: jekyll update
 ---
 
+xcodebuild 苹果的编译命令
+
+	https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/xcodebuild.1.html
+
+
+	NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+	NSString *build = [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleVersionKey];
+
 facebook 的 xctool 是 xcodebuild 命令的改良版
 
 	xctool -workspace licaishi.xcworkspace -scheme licaishi -configuration Release
