@@ -5,8 +5,7 @@ date:   2015-06-06 12:42:26
 categories: jekyll update
 ---
 
-1. 计算UILabel中文字的大小, 主要是高度
----
+#### 1. 计算UILabel中文字的大小, 主要是高度
 
 	CGSize size = [string sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:17.0f]}];
 	CGSize adjustedSize = CGSizeMake(ceilf(size.width), ceilf(size.height));

@@ -5,7 +5,7 @@ date:   2015-06-25 12:42:26
 categories: jekyll update
 ---
 
-1. xcode 去警告
+#### 1. xcode 去警告
 
 	a. 代码部分去警告
 
@@ -28,11 +28,11 @@ categories: jekyll update
 	platform :ios, '7.0'
 	inhibit_all_warnings!
 
-2. xcode 插件
+#### 2. xcode 插件
 	
 	http://alcatraz.io/
 
-3. xcode 一般警告处理
+#### 3. xcode 一般警告处理
 	
 	ld: warning: directory not found for option '-L/Users/leo-imac/Documents/workspace/licaishi/licaishi1.0.0/licaishi/Vender/Openssl/lib'
 

@@ -5,7 +5,7 @@ date:   2015-06-06 12:42:26
 categories: jekyll update
 ---
 
-UITabBarController - tab切换使用动画
+#### 1. UITabBarController - tab切换使用动画
 ----------------------------------
 Solution 1: transition from view (simple)
 
@@ -63,7 +63,7 @@ A more complex solution, but gives you more control of the animation. In this ex
                      }
                  }];
 
-UIButton - state 切换使用动画
+#### 2. UIButton - state 切换使用动画
 ------------------------------
     for (UIButton* btn in self.topButtons) {
         [UIView transitionWithView:btn
