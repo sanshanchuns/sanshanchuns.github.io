@@ -1,0 +1,24 @@
+---
+layout: post
+title:  iOS-全局设置
+date:   2015-07-01:00:08:40
+categories: jekyll update
+---
+
+#### 1. UIBarButtonItem
+
+	//搜索栏
+    NSShadow *shadow = [NSShadow new];
+    [[UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil]
+                         setTitleTextAttributes: @{NSForegroundColorAttributeName:[UIColor whiteColor],
+                                                                   NSShadowAttributeName:shadow,
+                                                                     NSFontAttributeName:[UIFont systemFontOfSize:14.0]}
+                                       forState:UIControlStateNormal];
+    
+    
+    //导航栏
+    [[UIBarButtonItem appearanceWhenContainedIn:[UINavigationBar class], nil]
+                         setTitleTextAttributes: @{NSForegroundColorAttributeName:[UIColor whiteColor],
+                                                            NSShadowAttributeName:shadow,
+                                                              NSFontAttributeName:[UIFont systemFontOfSize:14.0]}
+                                       forState:UIControlStateNormal];
