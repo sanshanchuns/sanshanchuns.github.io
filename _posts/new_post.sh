@@ -9,4 +9,4 @@ layout: post
 title:  $1
 date:   $now_time
 categories: jekyll update
----\n\n" >> $file_name
+---" > $file_name
