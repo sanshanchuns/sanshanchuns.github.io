@@ -6,7 +6,7 @@ categories: jekyll update
 ---
 
 #### 1. UITabBarController - tab切换使用动画
-----------------------------------
+
 Solution 1: transition from view (simple)
 
 This is the easiest and makes use of a predefined UIView transition method. With this solution we don't need to manage the views because the method does the work for us.
@@ -63,26 +63,30 @@ A more complex solution, but gives you more control of the animation. In this ex
                      }
                  }];
 
-#### 2. UIButton - state 切换使用动画
-------------------------------
-    for (UIButton* btn in self.topButtons) {
-        [UIView transitionWithView:btn
-                          duration:0.5
-                           options:UIViewAnimationOptionTransitionCrossDissolve
-                        animations:^{ btn.selected = NO; }
-                        completion:nil];
+#### 2. Animation 的锚点变换
+
+    //动画的变换都是相对于中心点进行的, 这个中心点就是锚点, 然而某些情况下我们需要改变这个默认的中心点(0.5, 0.5) 
+    -(void)setAnchorPoint:(CGPoint)anchorPoint forView:(UIView *)view
+    {
+        CGPoint newPoint = CGPointMake(view.bounds.size.width * anchorPoint.x,
+                                       view.bounds.size.height * anchorPoint.y);
+        CGPoint oldPoint = CGPointMake(view.bounds.size.width * view.layer.anchorPoint.x,
+                                       view.bounds.size.height * view.layer.anchorPoint.y);
+        
+        newPoint = CGPointApplyAffineTransform(newPoint, view.transform);
+        oldPoint = CGPointApplyAffineTransform(oldPoint, view.transform);
+        
+        CGPoint position = view.layer.position;
+        
+        position.x -= oldPoint.x;
+        position.x += newPoint.x;
+        
+        position.y -= oldPoint.y;
+        position.y += newPoint.y;
+        
+        view.layer.position = position;
+        view.layer.anchorPoint = anchorPoint;
     }
-    if (index < self.topButtons.count) {
-        UIButton* button = self.topButtons[index];
-        [UIView transitionWithView:button
-                          duration:0.5
-                           options:UIViewAnimationOptionTransitionCrossDissolve
-                        animations:^{ button.selected = YES; }
-                        completion:nil];
-    }
-
-
-
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-help]: https://github.com/jekyll/jekyll-help

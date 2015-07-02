@@ -30,13 +30,17 @@ categories: jekyll update
 
 #### 2. xcode 插件
 	
-	http://alcatraz.io/
+	好用的插件, 请戳这里<http://alcatraz.io/>
 
 #### 3. xcode 一般警告处理
 	
 	ld: warning: directory not found for option '-L/Users/leo-imac/Documents/workspace/licaishi/licaishi1.0.0/licaishi/Vender/Openssl/lib'
 
 	Targets -> Build Settings -> Library Search Path -> 删除对应行
+
+#### 4. cocoapods
+	如何安装, 请看这里<http://code4app.com/article/cocoapods-install-usage>
+	详细安装以及使用, 请看这里<https://guides.cocoapods.org/using/getting-started.html>
 
 
 [jekyll]:      http://jekyllrb.com

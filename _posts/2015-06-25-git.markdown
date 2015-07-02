@@ -97,6 +97,7 @@ The problem is that .gitignore ignores just files that weren't tracked before (b
 
 #### 3. 关于 oh my zsh  - 好用的命令行终端
 
+	如何安装?终端中输入
 	curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 
 
