@@ -103,10 +103,34 @@ categories: jekyll update
 	-flags 编译标识
 
 
+#### 4. 基础的爬虫
+	#!/usr/local/bin/python
+	#coding=utf-8
+
+	import re, urllib
+
+	def getHtml(url):
+		page = urllib.urlopen(url)
+	 	html = page.read()
+	 	return html
+
+	def getImage(html):
+	 	reg = r'<img.+src="(.+\.jpg)"'
+	 	imageList = re.findall(reg, html)
+	 	count = 0
+	 	for l in imageList:
+	 		urllib.urlretrieve(l, '%d.jpg' %s count)
+	 		count++
+
+	# html = getHtml("http://www.style.com/street/tommy-ton/2015/spring-2016-menswear-street-style/")
+	html = getHtml("http://www.style.com/slideshows/slideshows/street/tommy-ton/spring-2016-menswear/slides/")
+	getImage(html)
 
 
+#### 5. scrapy 爬虫框架. xpath
 
-
+	response.xpath('//div/img/@src').extract()  -- 命令行获取响应里的所有 div下的img的src属性 文本化该属性
+		
 
 
 
