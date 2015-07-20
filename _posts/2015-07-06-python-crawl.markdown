@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  python-basic
-date:   2015-07-06:10:39:21
+date:   2015-07-06 10:39:21
 categories: jekyll update
 ---
 

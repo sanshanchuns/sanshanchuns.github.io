@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  网络请求
-date:   2015-07-17:11:14:46
+date:   2015-07-17 11:14:46
 categories: jekyll update
 ---
 
@@ -11,4 +11,3 @@ categories: jekyll update
 	[SSKeychain setPassword:skey forService:@"Service" account:@"account"];
 	NSString *skey = [SSKeychain passwordForService:@"Service" account:@"account"];
 
-	
