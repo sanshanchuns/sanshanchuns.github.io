@@ -5,33 +5,41 @@ date:   2015-06-06 12:42:26
 categories: jekyll update
 ---
 
-#ifdef DEBUG
+#### 1. 常用打印
 
-#define BDPrintBaseLog NSLog(@"%s %@ [line %d]", __FUNCTION__, self, __LINE__)
-#define BDLog(format, ...) NSLog((@"%s [line %d] " format), __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define DLog(fmt, ...) NSLog((@"[%@  %@  %d]:  " fmt), NSStringFromClass([self class]), NSStringFromSelector(_cmd), __LINE__, ##__VA_ARGS__);
+	#ifdef DEBUG
 
-#else
+	#define BDPrintBaseLog NSLog(@"%s %@ [line %d]", __FUNCTION__, self, __LINE__)
+	#define BDLog(format, ...) NSLog((@"%s [line %d] " format), __FUNCTION__, __LINE__, ##__VA_ARGS__)
+	#define DLog(fmt, ...) NSLog((@"[%@  %@  %d]:  " fmt), NSStringFromClass([self class]), NSStringFromSelector(_cmd), __LINE__, ##__VA_ARGS__);
 
-#define BDPrintBaseLog ;
-#define BDLog(...) ;
-#define DLog(...);
-#define WLog(...)
+	#else
 
-#endif
+	#define BDPrintBaseLog ;
+	#define BDLog(...) ;
+	#define DLog(...);
+	#define WLog(...)
 
-#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
-#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
-#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
-#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
-#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+	#endif
 
-#define kScreenWidth [[UIScreen mainScreen] bounds].size.width
-#define kScreenHeight [[UIScreen mainScreen] bounds].size.height
+#### 2. 版本比较
 
-#define IS_IPHONE_4 (([UIScreen mainScreen].bounds.size.height == 480)? (YES):(NO))
-#define IS_IPHONE_5 (([UIScreen mainScreen].bounds.size.height == 568)? (YES):(NO))
-#define IS_IPHONE_5_OR_LESS (([UIScreen mainScreen].bounds.size.height <= 568)? (YES):(NO))
-#define IS_IPHONE_6 (([UIScreen mainScreen].bounds.size.height == 667)? (YES):(NO))
-#define IS_IPHONE_6_OR_MORE (([UIScreen mainScreen].bounds.size.height >= 667)? (YES):(NO))
-#define IS_IPHONE_6_PLUS (([UIScreen mainScreen].bounds.size.height > 667)? (YES):(NO))
+	#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
+	#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
+	#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+
+#### 3. 设备宽高
+
+	#define kScreenWidth [[UIScreen mainScreen] bounds].size.width
+	#define kScreenHeight [[UIScreen mainScreen] bounds].size.height
+
+#### 4. 设备型号
+	
+	#define IS_IPHONE_4 (([UIScreen mainScreen].bounds.size.height == 480)? (YES):(NO))
+	#define IS_IPHONE_5 (([UIScreen mainScreen].bounds.size.height == 568)? (YES):(NO))
+	#define IS_IPHONE_5_OR_LESS (([UIScreen mainScreen].bounds.size.height <= 568)? (YES):(NO))
+	#define IS_IPHONE_6 (([UIScreen mainScreen].bounds.size.height == 667)? (YES):(NO))
+	#define IS_IPHONE_6_OR_MORE (([UIScreen mainScreen].bounds.size.height >= 667)? (YES):(NO))
+	#define IS_IPHONE_6_PLUS (([UIScreen mainScreen].bounds.size.height > 667)? (YES):(NO))
