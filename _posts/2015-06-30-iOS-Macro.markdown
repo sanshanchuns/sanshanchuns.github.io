@@ -43,3 +43,9 @@ categories: jekyll update
 	#define IS_IPHONE_6 (([UIScreen mainScreen].bounds.size.height == 667)? (YES):(NO))
 	#define IS_IPHONE_6_OR_MORE (([UIScreen mainScreen].bounds.size.height >= 667)? (YES):(NO))
 	#define IS_IPHONE_6_PLUS (([UIScreen mainScreen].bounds.size.height > 667)? (YES):(NO))
+
+
+
+[jekyll]:      http://jekyllrb.com
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-help]: https://github.com/jekyll/jekyll-help

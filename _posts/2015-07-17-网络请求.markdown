@@ -11,3 +11,7 @@ categories: jekyll update
 	[SSKeychain setPassword:skey forService:@"Service" account:@"account"];
 	NSString *skey = [SSKeychain passwordForService:@"Service" account:@"account"];
 
+
+[jekyll]:      http://jekyllrb.com
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-help]: https://github.com/jekyll/jekyll-help
