@@ -1,0 +1,157 @@
+---
+layout: post
+title:  iOS-前置相机反转
+date:   2015-07-20:14:55:01
+categories: jekyll update
+---
+
+
+#### 1. 默认使用前置摄像头拍出来的照片是反着的, 那么如何转换呢?
+	
+
+	__weak AVCaptureSession *captureSessionBlock = _captureSession;
+    __weak id<DBCameraManagerDelegate>delegateBlock = _delegate;
+    
+    [_stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection
+                                                  completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
+         [captureSessionBlock stopRunning];
+         
+         if ( imageDataSampleBuffer != NULL ) {
+             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+             UIImage *image = [[UIImage alloc] initWithData:imageData];
+
+             /****
+             这里的image.imageOrientation 一般是 UIImageOrientationRight , 因为 UIImageOrientationUp 其实是手机 左卧倒 拍摄出来的图像方向
+             ****/
+
+             /******* 图像修正逻辑
+             AVCaptureDevicePosition position = _videoInput.device.position;
+             if (position == AVCaptureDevicePositionFront) {
+                 image = [image fixOrientation]; //1. 因为图片的方向是 Right, 所以先修正为Up, 这时候图片是横向的
+                 image = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:UIImageOrientationUpMirrored]; //2. 其次需要水平翻转, 使用 UpMirrored, 这时候图片是横向翻转的
+                 image = [image fixOrientation]; //3. 最后再次修正为Up, 这时候图片是竖向翻转的
+
+                 // 这是其中一种修正逻辑 并且配合了三方截图库 <https://github.com/ruslanskorb/RSKImageCropper>, 完全可以自定义图片修正逻辑
+             }
+             *******/
+             
+             /******* 该图片的属性, 比如方向, 曝光度, 对比度, 白平衡等 
+             CFDictionaryRef metadata = CMCopyDictionaryOfAttachments(NULL, imageDataSampleBuffer, kCMAttachmentMode_ShouldPropagate);
+             NSDictionary *meta = [[NSDictionary alloc] initWithDictionary:(__bridge NSDictionary *)(metadata)];
+             CFRelease(metadata);
+             ********/
+             
+             /****
+             调用代理响应图片处理结果
+             ****/
+             if ( [delegateBlock respondsToSelector:@selector(captureImageDidFinish:withMetadata:)] )
+                 [delegateBlock captureImageDidFinish:image withMetadata:meta];
+         } else if ( error ) {
+         	/****
+             调用代理响应出错
+             ****/
+             if ( [delegateBlock respondsToSelector:@selector(captureImageFailedWithError:)] )
+                 [delegateBlock captureImageFailedWithError:error];
+         }
+     }];
+
+
+#### 2. 切换摄像头的本质是切换 AVCaptureSession 的 AVCaptureDeviceInput
+
+
+	- (BOOL) cameraToggle
+	{
+	    BOOL success = NO;
+	    
+	    if ( [self hasMultipleCameras] ) {
+	        NSError *error;
+	        AVCaptureDeviceInput *newVideoInput;
+	        AVCaptureDevicePosition position = _videoInput.device.position;
+	        
+	        if ( position == AVCaptureDevicePositionBack )
+	            newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontCamera] error:&error];
+	        else if (position == AVCaptureDevicePositionFront)
+	            newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self backCamera] error:&error];
+	        else
+	            return success;
+	        
+	        if ( newVideoInput != nil ) {
+	            [_captureSession beginConfiguration];
+	            [_captureSession removeInput:_videoInput];
+	            
+	            if ( [_captureSession canAddInput:newVideoInput] ) {
+	                [_captureSession addInput:newVideoInput];
+	                
+	                _videoInput = newVideoInput;
+	            } else
+	                [_captureSession addInput:_videoInput];
+
+	            [_captureSession commitConfiguration];
+	            
+	            success = YES;
+	        } else if ( error ) {
+	            if ( [_delegate respondsToSelector:@selector(someOtherError:)] )
+	                [_delegate someOtherError:error];
+	        }
+	    }
+	    
+	}
+
+	- (BOOL) hasMultipleCameras
+	{
+	    return [[AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo] count] > 1 ? YES : NO;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

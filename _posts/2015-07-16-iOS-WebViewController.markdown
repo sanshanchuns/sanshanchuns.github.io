@@ -32,7 +32,7 @@ categories: jekyll update
 	    
 	    [_bridge registerHandler:@"pushViewCtlr" handler:^(id data, WVJBResponseCallback responseCallback) {
 	        if ([data isKindOfClass:[NSDictionary class]]) {
-	            //js调用native
+	            //native逻辑
 	            responseCallback(@{@"status":@"1", @"respData":@{@"test":@"test"}});
 	        } else {
 	            responseCallback(@{@"status":@"0", @"respData":@{@"test":@"test"}});
