@@ -101,6 +101,14 @@ The problem is that .gitignore ignores just files that weren't tracked before (b
 	curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 
 
+#### 4. gitlab 服务器
+	
+	对于公司内网的 git 服务器, gitlab 是大概是业界第一的, 地址看这里<https://github.com/gitlabhq/gitlabhq>
+	一台 ubuntu 的机器, 追加 bitnami.com 他们家的 一键安装包 <https://bitnami.com/stack/gitlab>, 就是一台完美的本地源码服务器
+	当然也可以部署在类似 GCP, AWS 等云服务器上
+	
+
+
 
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
