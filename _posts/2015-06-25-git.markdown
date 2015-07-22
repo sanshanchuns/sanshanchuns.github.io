@@ -108,14 +108,12 @@ categories: jekyll update
 
 #### 5. git 常用命令
 	
-	nothing added to commit but untracked files present (use "git add" to track)
-
-
 	git add .
 	git commit -m"your comment about this commit"
 	git pull origin master  //拉取远程仓库
 	git pull --rebase origin master //先拉取远程仓库, 再并上当前的修改提交
 	git push origin master //推送到远程仓库
+	git merge branch //合并branch到当前分支
 	git branch -D master  //删除分支
 	git checkout -b new_branch //创建新分支
 	git clean -f  //删除没有追踪的文件

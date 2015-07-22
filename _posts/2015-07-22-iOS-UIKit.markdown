@@ -1,0 +1,193 @@
+---
+layout: post
+title:  iOS-UIKit
+date:   2015-07-22-16:41:04
+categories: jekyll update
+---
+
+#### 1. UIScrollView
+
+	a.  UIScrollView有一个BOOL类型的tracking属性，用来返回用户是否已经触及内容并打算开始滚动，我们从这个属性开始探究UIScrollView的工作原理
+
+		当手指触摸到UIScrollView内容的一瞬间，会产生下面的动作：
+		拦截触摸事件
+		tracking属性变为YES
+		一个内置的计时器开始生效，用来监控在极短的事件间隔内是否发生了手指移动
+
+		case1：当检测到时间间隔内手指发生了移动，UIScrollView自己触发滚动，tracking属性变为NO，手指触摸下即使有(可以响应触摸事件的)内部控件也不会再响应触摸事件
+
+		case2：当检测到时间间隔内手指没有移动，tracking属性保持YES，手指触摸下如果有(可以响应触摸事件的)内部控件，则将触摸事件传递给控件进行处理
+
+		有很多新闻类的App顶部都有一个滑动菜单栏，主要模型可能是由一个UIScrollView包含多个UIButton控件组成；当你操作的时候，手指如果是很迅速的在上面划过，会发现即使手指触摸的地方有UIButton，但是并没有触发该UIButton的任何触摸事件，这就是上面提到的case1；当你手指是缓慢划过或根本就没动，才会触发UIButton的触摸事件，这是case2的情况。
+
+		上面的工作原理其实有一个属性开关来控制：delaysContentTouches。默认值为YES；如果设置为NO，则无论手指移动的多么快，始终都会将触摸事件传递给内部控件；设置为NO可能会影响到UIScrollView的滚动功能
+
+	b.  再看另一个BOOL类型的属性canCencelContentTouches，从字面上理解是“可以取消内容触摸“，默认值为YES。文档里的解释是这样的：
+
+		A Boolean value that controls whether touches in the content view always lead to tracking.
+
+		If the value of this property is YES and a view in the content has begun tracking a finger touching it, and if the user drags the finger enough to initiate a scroll, the view receives a touchesCancelled:withEvent: message and the scroll view handles the touch as a scroll. If the value of this property is NO, the scroll view does not scroll regardless of finger movement once the content view starts tracking.
+
+		翻译为中文大致如下：
+
+		这个BOOL类型的值控制content view里的触摸是否总能引发跟踪(tracking)
+
+		如果属性值为YES并且跟踪到手指正触摸到一个内容控件，这时如果用户拖动手指的距离足够产生滚动，那么内容控件将收到一个touchesCancelled:withEvent:消息，而scroll view将这次触摸作为滚动来处理。如果值为NO，一旦content view开始跟踪(tracking==YES)，则无论手指是否移动，scrollView都不会滚动。
+
+		简单通俗点说，如果为YES，就会等待用户下一步动作，如果用户移动手指到一定距离，就会把这个操作作为滚动来处理并开始滚动，同时发送一个touchesCancelled:withEvent:消息给内容控件，由控件自行处理。如果为NO，就不会等待用户下一步动作，并始终不会触发scrollView的滚动了
+
+
+
+#### 2. UIButton
+
+	a.  按钮不设置高亮态 但默认会响应 UIControlStateHighlighted, 并且使用了一层灰色蒙层, 如何忽略高亮?
+		button.adjustsImageWhenHighlighted = NO;
+
+	b.  cornerRadius只能控制底层layer的圆角, UIButton 除了底层layer, 还有 backgroundImageLayer, imageLayer(labelLayer), 如何更改上层layer的圆角?
+		//拉伸前景图片
+		[image resizableImageWithCapInsets:UIEdgeInsetsMake(image.size.height/2, image.size.width/2, image.size.height/2, image.size.width/2) resizingMode:UIImageResizingModeStretch]
+
+	c.  实践证明, 按钮的 前景图片 和 前景文字 只能存在一个, 因此最佳实践是 使用 背景图片 + 前景文字
+
+	d.  按钮文字偏移, 前景图片偏移
+		button.titleEdgeInsets = UIEdgeInsetsMake(100, 0, 0, 0)
+		button.imageEdgeInsets = UIEdgeInsetsMake(-100, 0, 0, 0)
+
+	e.  按钮任意一个角圆角
+		//这种时候一般都需要请出底层layer的遮罩来完成任意的, 所谓遮罩mask, 可以理解为对父layer的切割所剩下的部分
+		UIBezierPath *leftPath = [UIBezierPath bezierPathWithRoundedRect:self.leftTabButton.bounds
+	                                                   byRoundingCorners:(UIRectCornerTopLeft | UIRectCornerBottomLeft)
+	                                                         cornerRadii:CGSizeMake(3.0, 3.0)];
+	    
+		CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+		maskLayer.frame = headView.bounds;
+		maskLayer.path = leftPath.CGPath;
+		button.layer.mask = maskLayer;
+
+#### 3. UILabel
+
+	a.  计算UILabel行高
+
+	    CGRect r = [label.text boundingRectWithSize:CGSizeMake(kScreenWidth - 150, 0)
+	                                  options:NSStringDrawingUsesLineFragmentOrigin
+	                               attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]}
+	                                  context:nil];
+	    CGFloat height = ceilf(r.size.height);
+
+	b.  UILabel自适应宽度,高度
+
+		adjustsFontSizeToFitWidth; //allow the label to be autosized to fit a certain width by scaling the font size(s) by a scaling factor >= the minimum scaling factor
+		- (void)sizeToFit; // calls sizeThatFits: with current view bounds and changes bounds size.
+
+#### 4. UIBarButtonItem
+
+	a.  搜索栏
+	    NSShadow *shadow = [NSShadow new];
+	    [[UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil]
+	                         setTitleTextAttributes: @{NSForegroundColorAttributeName:[UIColor whiteColor],
+	                                                                   NSShadowAttributeName:shadow,
+	                                                                     NSFontAttributeName:[UIFont systemFontOfSize:14.0]}
+	                                       forState:UIControlStateNormal];
+    
+    b.  导航栏
+	    [[UIBarButtonItem appearanceWhenContainedIn:[UINavigationBar class], nil]
+	                         setTitleTextAttributes: @{NSForegroundColorAttributeName:[UIColor whiteColor],
+	                                                            NSShadowAttributeName:shadow,
+	                                                              NSFontAttributeName:[UIFont systemFontOfSize:14.0]}
+	                                       forState:UIControlStateNormal];
+
+	c.  导航栏回退按钮去除文字, 一般是在基类控制器中设置
+
+		self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil]; //取消 back 文字
+
+
+#### 5. UITapGestureRecognizer
+	a.  普通的 tap, 如何控制有效点击区域?
+	    UITapGestureRecognizer* gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pickerViewTapGestureRecognized:)];
+	    gestureRecognizer.cancelsTouchesInView = NO; //轮流调用touches 以及 gesture 方法
+	    gestureRecognizer.delegate = self; //同时识别多个手势
+	    [_pickerView addGestureRecognizer:gestureRecognizer];
+
+	    case UIGestureRecognizerStateEnded:{
+
+	        CGPoint touchPoint = [gestureRecognizer locationInView:gestureRecognizer.view.superview]; //获取触点
+	        
+	        CGRect frame = self.pickerView.frame;
+	        CGRect selectorFrame = CGRectInset( frame, 0.0, self.pickerView.bounds.size.height * 0.85 / 2.0 ); //截取有效区域
+	        
+	        if( CGRectContainsPoint( selectorFrame, touchPoint) ){ //如果点击区域在有效区域里
+	            //调用对应逻辑
+	        }
+	    }
+
+	    //同时识别多个手势
+	    -(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+	    if (otherGestureRecognizer.state == UIGestureRecognizerStateEnded) {
+	        return true;
+	    }
+	    return false;
+		}
+
+	b.  touches , 如何识别一个UIView 上的一个手指 两个手指 左右手指触摸事件?
+
+		- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+	    	[super touchesBegan:touches withEvent:event];
+		    
+		    if (event.allTouches.count == 2) { //双指按下
+		        
+		    } else if(event.allTouches.count == 1){ //单指按下
+		        
+		    }
+		    
+		}
+
+		- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
+		    [super touchesMoved:touches withEvent:event];
+		
+		    if (event.allTouches.count == 2) { //双指移动
+		        
+		    } else if (event.allTouches.count == 1) { //单指移动
+		        
+		        CGFloat positionX = [[touches anyObject] locationInView:self].x;
+
+		    }
+		}
+
+		- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
+		    [super touchesEnded:touches withEvent:event];
+		    
+		    if (event.allTouches.count == 2) { //两个手指抬起其中一个
+		        if (touches.count == 1) { 
+
+		            //判断到底是左手还是右手抬起
+		            [_indexes removeAllObjects];
+		            for (UITouch* touch in event.allTouches) {
+		                [_indexes addObject:touch];
+		            }
+		            CGFloat leftValue = [_indexes[0] locationInView:self].x;
+		            CGFloat rightValue = [_indexes[1] locationInView:self].x;
+		            _leftValue = leftValue < rightValue ? leftValue : rightValue;
+		            _rightValue = rightValue > leftValue ? rightValue : leftValue;
+		            
+		            CGFloat value = [[touches anyObject] locationInView:self].x;
+		            if (value == _leftValue) { //抬起左手指
+		                
+		                
+		            } else { //抬起右手指
+		                
+		            }
+		            
+		        } else { //两个手指一起抬起
+		            
+		        }
+		        
+		    } else if (event.allTouches.count == 1) { //单独一个手指抬起
+		        
+		    }
+		    
+		}
+
+
+[jekyll]:      http://jekyllrb.com
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-help]: https://github.com/jekyll/jekyll-help
