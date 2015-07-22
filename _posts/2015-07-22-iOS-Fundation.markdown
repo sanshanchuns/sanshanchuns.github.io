@@ -6,8 +6,10 @@ categories: jekyll update
 ---
 
 
-#### 1. RunLoopMode
+#### 1. NSTimer 计时器
 
+	RunLoopMode
+	
 	NSDefaultRunLoopMode 这是大多数操作中使用的模式。
 	NSConnectionReplyMode 该模式用来监控NSConnection对象。你通常不需要在你的代码中使用该模式。
 	NSModalPanelRunLoopMode Cocoa使用该模式来标识用于modal panel（模态面板）的事件。
