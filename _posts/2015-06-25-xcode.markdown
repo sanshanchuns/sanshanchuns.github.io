@@ -49,6 +49,41 @@ categories: jekyll update
 	运行一下命令
 	find ~/Library/Application\ Support/Developer/Shared/Xcode/Plug-ins -name Info.plist -maxdepth 3 | xargs -I{} defaults write {} DVTPlugInCompatibilityUUIDs -array-add `defaults read /Applications/Xcode.app/Contents/Info.plist DVTPlugInCompatibilityUUID`
 
+#### 6. Xcode Build 自增脚本
+
+	TARGETS --> Build Phases  --> Run Script
+
+	#/bin/sh
+	# Date: 2015-06-29
+	# Author: leo
+
+	#Run when "Build Configuration" is "Release". You can change to "ad_hoc","Release" and so on
+	if [ "${CONFIGURATION}" = "Release" ]; then
+	export LC_CTYPE=en_US.UTF-8
+	#version=`git rev-parse HEAD`  #获取git当前分支
+	#version=`expr ${version:0:7}` #截取前7位
+	buildNumber=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$INFOPLIST_FILE")
+	buildNumberPrefix=${buildNumber:0:6}
+	buildNumberSuffix=$((${buildNumber:6} + 1))
+	buildNumber=$(printf "%s%s" "$buildNumberPrefix" "$buildNumberSuffix")
+	#`osascript -e 'tell app "System Events" to (display dialog "'${buildNumber}'" with title "IPA一键分享" buttons {"ok"})'`
+	/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" $PRODUCT_SETTINGS_PATH
+	fi
+	exit 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-help]: https://github.com/jekyll/jekyll-help

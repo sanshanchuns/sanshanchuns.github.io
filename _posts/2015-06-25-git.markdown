@@ -7,8 +7,6 @@ categories: jekyll update
 
 #### 1. 关于 .gitignore 文件
 
-.gitignore
-
 	文档
 	git clone git@github.com:github/gitignore.git
 
@@ -60,10 +58,10 @@ categories: jekyll update
 
 ---
 
-I have a repository with a file Hello.java. When I compile it an additional Hello.class file is generated.
-I created an entry for Hello.class in a .gitignore file. However the file still appears to be tracked.
-I want to know how to make git ignore Hello.class.
-The problem is that .gitignore ignores just files that weren't tracked before (by git add). Run git rm --cached name_of_file and your file will be ignored again (in case it's mentioned in .gitignore).
+	I have a repository with a file Hello.java. When I compile it an additional Hello.class file is generated.
+	I created an entry for Hello.class in a .gitignore file. However the file still appears to be tracked.
+	I want to know how to make git ignore Hello.class.
+	The problem is that .gitignore ignores just files that weren't tracked before (by git add). Run git rm --cached name_of_file and your file will be ignored again (in case it's mentioned in .gitignore).
 
 	git rm --cached name_of_file  #删除缓存中已经追踪的文件, .gitignore 就会生效 
 
@@ -107,6 +105,22 @@ The problem is that .gitignore ignores just files that weren't tracked before (b
 	一台 ubuntu 的机器, 追加 bitnami.com 他们家的 一键安装包 <https://bitnami.com/stack/gitlab>, 就是一台完美的本地源码服务器
 	当然也可以部署在类似 GCP, AWS 等云服务器上
 	
+
+#### 5. git 常用命令
+	
+	nothing added to commit but untracked files present (use "git add" to track)
+
+
+	git add .
+	git commit -m"your comment about this commit"
+	git pull origin master  //拉取远程仓库
+	git pull --rebase origin master //先拉取远程仓库, 再并上当前的修改提交
+	git push origin master //推送到远程仓库
+	git branch -D master  //删除分支
+	git checkout -b new_branch //创建新分支
+	git clean -f  //删除没有追踪的文件
+
+
 
 
 

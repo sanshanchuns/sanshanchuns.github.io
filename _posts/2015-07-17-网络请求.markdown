@@ -5,7 +5,7 @@ date:   2015-07-17 11:14:46
 categories: jekyll update
 ---
 
-#### 1. 后台自动登录, 本地需要keychain保存一个登录令牌, 类似于token的一个字符串, 这个字符串是用户名, 密码, 唯一设备号, 时间等计算所得
+#### 1. 后台自动登录, 本地需要keychain保存一个登录令牌, 类似于token的一个字符串, 这个字符串就是服务器的session_id
 	LaunchCheckResp(head:LcsMApiRespHead(time:1437102796,skey:"ahpg3v8or7qa5erelra5bj0rg0",uid:0,contentHash:"94187eb12cbcb7b799864ec141a179cd"),message:"(null)",buttons:(null))
 
 	[SSKeychain setPassword:skey forService:@"Service" account:@"account"];
