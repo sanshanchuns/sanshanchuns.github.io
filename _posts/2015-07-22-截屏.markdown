@@ -1,0 +1,180 @@
+---
+layout: post
+title:  截屏
+date:   2015-07-22-16:00:54
+categories: jekyll update
+---
+
+#### 1. 截屏, 但是这个截屏不能包括键盘
+	
+	Might be you will need to snapshot a particular view into an image. Previously we do like this:
+
+	#import <QuartzCore/QuartzCore.h>
+
+	UIGraphicsBeginImageContextWithOptions(view.bounds.size, NO, 0);
+	[view.layer renderInContext:UIGraphicsGetCurrentContext()];
+
+	UIImage *copied = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+
+
+
+	On iOS 7 there's an updated API that is much faster:
+
+	UIGraphicsBeginImageContextWithOptions(view.bounds.size, NO, 0);
+	[view drawViewHierarchyInRect:view.bounds afterScreenUpdates:YES];
+	UIImage *snapshot = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	return snapshot;
+
+
+
+	How efficient is the faster API? It is about 1.8x faster on iPhone 5. Time elapsed was down from 90ms to 50ms.
+	If you want to create a view already drawn with the image, we can use an even more handy API:
+
+
+	UIView *newView = [view snapshotViewAfterScreenUpdates:YES];
+
+
+
+#### 2. 包括键盘的截屏 UIView+snapshot.m
+
+	- (UIImage *)snapshot{
+	    
+	    UIWindow *keyboard = nil;
+	    for (UIWindow *window in [[UIApplication sharedApplication] windows])
+	    {
+	        if ([[window description] hasPrefix:@"<UITextEffectsWin"])
+	        {
+	            keyboard = window;
+	            break;
+	        }
+	    }
+	    
+	    CGSize size =  [[UIScreen mainScreen] bounds].size;
+	    UIGraphicsBeginImageContext(size);
+	    CGContextRef context=UIGraphicsGetCurrentContext();
+	    // delete following line if you only want the keyboard
+	    [[self layer] renderInContext:context];
+	    if(keyboard!=nil) [[keyboard layer] renderInContext:context];
+	    UIImage *screenImg = UIGraphicsGetImageFromCurrentImageContext();
+	    UIGraphicsEndImageContext();
+	    
+	    return screenImg;
+	}
+
+	- (void)blur{
+	    self.userInteractionEnabled = NO;
+	    
+	    UIImage *blurredImage = [[self snapshot] blur];
+	    UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.bounds];
+	    imageView.tag = -1;
+	    imageView.image = blurredImage;
+	    [self addSubview:imageView];
+	    for (UIWindow *window in [[UIApplication sharedApplication] windows]) {
+	        if ([[window description] hasPrefix:@"<UITextEffectsWin"]) {
+	            window.hidden = YES;
+	        }
+	    }
+	}
+
+	-(void)unBlur{
+	    [[self viewWithTag:-1] removeFromSuperview];
+	    for (UIWindow *window in [[UIApplication sharedApplication] windows]) {
+	        if ([[window description] hasPrefix:@"<UITextEffectsWin"]) {
+	            window.hidden = NO;
+	        }
+	    }
+	    self.userInteractionEnabled = YES;
+	}
+
+	-(BOOL)blurred{
+	    if ([self viewWithTag:-1]) {
+	        return YES;
+	    } else {
+	        return NO;
+	    }
+	}
+
+
+#### 3. 图像模糊 UIImage+blur.m
+
+	- (UIImage *)blur{
+	    CIContext *context = [CIContext contextWithOptions:nil];
+	    
+	    CIImage *inputImage = [CIImage imageWithCGImage:self.CGImage];
+	    CIFilter *filter = [CIFilter filterWithName: @"CIGaussianBlur"];
+	    [filter setValue:inputImage forKey:kCIInputImageKey];
+	    [filter setValue:[NSNumber numberWithFloat: 6] forKey: @"inputRadius"];
+	    CIImage *resultImage = [filter valueForKey:kCIOutputImageKey];
+	    CGImageRef cgImage = [context createCGImage:resultImage fromRect:[inputImage extent]];
+	    UIImage *blurredImage = [UIImage imageWithCGImage:cgImage];
+	    CGImageRelease(cgImage);
+	    return blurredImage;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[jekyll]:      http://jekyllrb.com
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-help]: https://github.com/jekyll/jekyll-help

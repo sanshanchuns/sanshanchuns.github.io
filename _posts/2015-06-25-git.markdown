@@ -119,6 +119,7 @@ categories: jekyll update
 	git branch -D master  //删除分支
 	git checkout -b new_branch //创建新分支
 	git clean -f  //删除没有追踪的文件
+	git rm --cached file_path  //.gitignore 中已经忽略对应文件, 但已经被追踪
 
 
 
