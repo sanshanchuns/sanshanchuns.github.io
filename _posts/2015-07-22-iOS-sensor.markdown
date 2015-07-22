@@ -7,7 +7,7 @@ categories: jekyll update
 
 #### 1. 距离传感器
 
-	[[UIDevice currentDevice] setProximityMonitoringEnabled:YES]; //default is NO //开启距离传感器
+	[[UIDevice currentDevice] setProximityMonitoringEnabled:YES]; //default is NO
 
 	[[NSNotificationCenter defaultCenter] addObserver:self
 	                                         selector:@selector(didSensorStateChanged:)

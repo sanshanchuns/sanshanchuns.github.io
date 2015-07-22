@@ -279,7 +279,13 @@ categories: jekyll update
 	    return YES;
 	}
 
+#### 8. UIResponder <---- UIView <---- UIControl 的联系
 
+	UIResponder 是响应者, 具有一个系列的响应方法(包括 触摸,震动,遥控), 默认是单点触
+	UIView 继承响应者, 扩充了更多 容器的概念, 因此可以有 子视图
+	UIControl 继承 UIView, 扩充了 控件的概念, 控件有多种状态, 比如著名的 TouchUpInside 等一系列
+
+	UIResponder 作为响应者, 具备基本的响应方法(一般用来定制一些响应行为)
 
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
