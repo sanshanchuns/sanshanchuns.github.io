@@ -7,9 +7,8 @@ categories: jekyll update
 
 #### 1. UITabBarController - tab切换使用动画
 
-#### Solution 1: transition from view (simple)
-
-#### This is the easiest and makes use of a predefined UIView transition method. With this solution we don't need to manage the views because the method does the work for us.
+    Solution 1: transition from view (simple)
+    This is the easiest and makes use of a predefined UIView transition method. With this solution we don't need to manage the views because the method does the work for us.
 
 	// Get views. controllerIndex is passed in as the controller we want to go to. 
 	UIView * fromView = tabBarController.selectedViewController.view;
@@ -28,9 +27,8 @@ categories: jekyll update
 
 
 
-#### Solution 2: scroll (more complex)
-
-#### A more complex solution, but gives you more control of the animation. In this example we get the views to slide on and off. With this one we need to manage the views  ourselves.
+    Solution 2: scroll (more complex)
+    A more complex solution, but gives you more control of the animation. In this example we get the views to slide on and off. With this one we need to manage the views  ourselves.
 
 	// Get the views.
 	UIView * fromView = tabBarController.selectedViewController.view;
@@ -63,6 +61,7 @@ categories: jekyll update
                      }
                  }];
 
+
 #### 2. Animation 的锚点变换
 
     //动画的变换都是相对于中心点进行的, 这个中心点就是锚点, 然而某些情况下我们需要改变这个默认的中心点(0.5, 0.5) 
@@ -87,6 +86,7 @@ categories: jekyll update
         view.layer.position = position;
         view.layer.anchorPoint = anchorPoint;
     }
+
 
 #### 3. pop Animation 倒计时
     
@@ -156,52 +156,7 @@ categories: jekyll update
         [self.layer pop_addAnimation:scaleAnimation forKey:@"layerScaleDefaultAnimation"];
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+  
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-help]: https://github.com/jekyll/jekyll-help

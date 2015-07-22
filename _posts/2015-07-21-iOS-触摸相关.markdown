@@ -5,7 +5,7 @@ date:   2015-07-21-17:19:56
 categories: jekyll update
 ---
 
-1. 普通的 tap, 如何控制有效点击区域?
+#### 1. 普通的 tap, 如何控制有效点击区域?
 
     UITapGestureRecognizer* gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pickerViewTapGestureRecognized:)];
     gestureRecognizer.cancelsTouchesInView = NO; //轮流调用touches 以及 gesture 方法
@@ -33,7 +33,7 @@ categories: jekyll update
     return false;
 	}
 
-2. touches , 如何识别一个UIView 上的一个手指 两个手指 左右手指触摸事件?
+#### 2. touches , 如何识别一个UIView 上的一个手指 两个手指 左右手指触摸事件?
 
 	- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     	[super touchesBegan:touches withEvent:event];
