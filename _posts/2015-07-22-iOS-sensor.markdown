@@ -5,29 +5,26 @@ date:   2015-07-22-18:21:20
 categories: jekyll update
 ---
 
-1. 距离传感器
---------------
+#### 1. 距离传感器
 
-//开启距离传感器
-[[UIDevice currentDevice] setProximityMonitoringEnabled:NO]; //default is NO
+	[[UIDevice currentDevice] setProximityMonitoringEnabled:YES]; //default is NO //开启距离传感器
 
-[[NSNotificationCenter defaultCenter] addObserver:self
-                                         selector:@selector(didSensorStateChanged:)
-                                             name:@"UIDeviceProximityStateDidChangeNotification"
-                                           object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+	                                         selector:@selector(didSensorStateChanged:)
+	                                             name:@"UIDeviceProximityStateDidChangeNotification"
+	                                           object:nil];
 
-
-#pragma mark - UIDeviceProximityStateDidChangeNotification
--(void)didSensorStateChanged:(NSNotificationCenter *)notification{
-    //如果此时手机靠近面部放在耳朵旁，那么声音将通过听筒输出，并将屏幕变暗（省电）
-    if ([[UIDevice currentDevice] proximityState] == YES){
-        NSLog(@"Device is close to user");
-        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];  //听筒
-    }else{
-        NSLog(@"Device is not close to user");
-        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];  //扬声器
-    }
-}
+	#pragma mark - UIDeviceProximityStateDidChangeNotification
+	-(void)didSensorStateChanged:(NSNotificationCenter *)notification{
+	    //如果此时手机靠近面部放在耳朵旁，那么声音将通过听筒输出，并将屏幕变暗（省电）
+	    if ([[UIDevice currentDevice] proximityState] == YES){
+	        NSLog(@"Device is close to user");
+	        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];  //听筒
+	    }else{
+	        NSLog(@"Device is not close to user");
+	        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];  //扬声器
+	    }
+	}
 
 
 [jekyll]:      http://jekyllrb.com
