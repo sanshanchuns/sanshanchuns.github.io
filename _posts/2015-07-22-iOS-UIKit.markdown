@@ -36,6 +36,34 @@ categories: jekyll update
 
 		简单通俗点说，如果为YES，就会等待用户下一步动作，如果用户移动手指到一定距离，就会把这个操作作为滚动来处理并开始滚动，同时发送一个touchesCancelled:withEvent:消息给内容控件，由控件自行处理。如果为NO，就不会等待用户下一步动作，并始终不会触发scrollView的滚动了
 
+	c.  左右滑动 默认会覆盖 UINavigation的推出手势
+
+		UIGestureRecognizerDelegate
+
+		- (void)viewDidAppear:(BOOL)animated
+		{
+		    [super viewDidAppear:animated];
+		    self.navigationController.interactivePopGestureRecognizer.delegate = self;
+		}
+
+		- (void)viewWillDisappear:(BOOL)animated
+		{
+		    [super viewWillDisappear:animated];
+		    self.navigationController.interactivePopGestureRecognizer.delegate = nil;
+		}
+
+		- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+		    return YES;
+		}
+
+		- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+		    return YES;
+		}
+
+		- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+		    return [gestureRecognizer isKindOfClass:UIScreenEdgePanGestureRecognizer.class];
+		}
+
 
 
 #### 2. UIButton
@@ -230,6 +258,28 @@ categories: jekyll update
 	    [_webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.urlString]]];
     
 	}
+
+#### 7. UITextField, UITextView
+
+	return 键收回键盘
+
+	#pragma mark - UITextViewDelegate
+
+	- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
+	    if ([text isEqualToString:@"\n"]) {
+	        [self.textView resignFirstResponder];
+	        return NO;
+	    }
+	    return YES;
+	}
+
+	#pragma mark - UITextFieldDelegate
+	- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+	    [self.textField resignFirstResponder];
+	    return YES;
+	}
+
+
 
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll

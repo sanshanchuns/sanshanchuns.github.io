@@ -157,10 +157,75 @@ categories: jekyll update
     }
 
 
+#### 6. CADisplayLink
 
+    CADisplayLink 是一种以屏幕刷新频率触发的时钟机制, 每秒执行大约 60 次左右
+    这种计时器, 可以使绘图代码与视图的刷新频率保持同步, 而 NSTimer 无法确保计时器实际被触发的准确时间
 
+    CADisplayLink  *_displayLink; // 游戏时钟
+    steps = 0; // 初始化屏幕刷新总次数
+    _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(step)]; // 初始化时钟
+    [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode]; // 初始化时钟之后，有一个必须要做的，就是把游戏时钟，添加到主运行循环
 
+    //[NSTimer scheduledTimerWithTimeInterval:1./60 target:self selector:@selector(step) userInfo:nil repeats:YES]; //效果同上,唯一的不同就是当系统比较繁忙时, 会卡
 
+    #pragma mark - 使用指定时间处理CADisplayLink触发时间的方法（1）
+    - (void)updateTimer:(CADisplayLink *)sender{
+        // 如果_startTime=0，说明是第一次触发时钟，需要记录时钟的时钟戳记
+        if (_startTime == 0) {
+            _startTime = sender.timestamp;
+        }
+        // 时钟触发的时间差值
+        CFTimeInterval deltaTime = sender.timestamp - _startTime;
+        if (deltaTime > 1.0) {
+            NSLog(@"时钟触发了 %f", sender.timestamp);
+            // 更新_startTime的数值，记录本次执行任务的时间
+            _startTime = sender.timestamp;
+        }
+    }
+
+    #pragma mark - 使用指定时间处理CADisplayLink触发时间的方法（2）
+    // 全局静态变量，记录程序运行开始，屏幕刷新的总次数
+    static long steps;
+    /**
+     使用一个“全局”的长整形记录屏幕刷新的次数，然后，用模的方式判断时间
+     在Box2D的物理引擎中，时钟触发的方法也叫做step。
+     */
+    - (void)step{
+        // 假定每隔一秒触发一次方法
+        if (steps % 60 == 1) {
+            NSLog(@"时钟触发了！ %ld", steps);
+        }
+        steps++;
+    }
+
+#### 7. CALayer
+
+    a.  UIView, CALayer 之间的调用关系
+
+        UIView 收到 setNeedsDisplay 消息, CALayer 会准备好一个 CGContextRef, 然后调用代理,即UIView的 drawLayer:inContext: 方法, 传入准备好的 CGContextRef 对象.
+        drawLayer:inContext: 方法中会调用 drawRect: 方法
+        drawRect:中通过 UIGraphicsGetCurrentContext() 获取的就是 CALayer 传入的 CGContextRef 对象, 在drawRect:中完成的所有绘制都入填入CALayer的CGContextRef中, 然后被拷贝值屏幕
+        CALayer 的 CGContextRef 用的是位图上下文 (Bitmap Graphics Context)
+
+        - (void)viewDidLoad{
+            [super viewDidLoad];
+
+            _layer = [CALayer layer];
+            [_layer setBounds:CGRectMake(0, 0, 200, 200)];
+            [_layer setPosition:CGPointMake(100, 100)];
+            [_layer setBackgroundColor:[UIColor redColor].CGColor];
+            // 不能再将UIView设置为这个CALayer的delegate，因为UIView对象已经是内部层的delegate，再次设置会出问题
+        //    [_layer setDelegate:self.view];
+            [_layer setDelegate:self]; // 因为ViewController 是 CALayer 的代理, 所以需要实现 drawLayer: inContext: 方法
+            [_layer setNeedsDisplay]; // 这样才会调用 drawLayer: inContext: 方法
+            [self.view.layer addSublayer:_layer];
+        }
+
+        - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx{
+            CGContextSetRGBFillColor(ctx, 1, 1, 0, 1);
+            CGContextFillEllipseInRect(ctx, CGRectMake(0, 0, 200, 200));
+        }
 
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll

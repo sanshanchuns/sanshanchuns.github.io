@@ -19,6 +19,17 @@ categories: jekyll update
 
 #### 3. 只有打包是不行的, 最终的目标还是要给到测试同学, 那么 fir.im 就是不错的选择, 去他们官网搞起来吧
 
+	确定ruby 环境统一, 比如使用 rvm use 2.1.2    (指定使用 2.1.2 版本)
+	sudo gem install fir-cli --no-ri --no-rdoc
+
+	fir upgrade    (更新fir)
+
+	fir login   (登录fir账号)
+	输入 对应账号的 token
+
+	fir build_ipa . -q -o . -p    (编译当前目录(安静模式), ipa文件输入在当前目录, 最后发布)
+	fir build_ipa . -o . -p  (非安静模式)
+
 	fir b . -w -S [your scheme] #编译 -w 表示编译 xcworkspace, 这里xcode需要指定 InHouse 的企业证书($299)
 	fir login
 	fir p build_ipa/[your scheme].ipa #发布到 fir.im, 测试同学可以下载拉
