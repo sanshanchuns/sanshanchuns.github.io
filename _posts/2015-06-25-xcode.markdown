@@ -71,7 +71,9 @@ categories: jekyll update
 	fi
 	exit 0
 
+#### 7. 编译警告类型
 
+	查看这里<http://fuckingclangwarnings.com/>
 
 
 

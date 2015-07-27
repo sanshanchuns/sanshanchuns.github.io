@@ -17,8 +17,6 @@ categories: jekyll update
 	UIImage *copied = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
 
-
-
 	On iOS 7 there's an updated API that is much faster:
 
 	UIGraphicsBeginImageContextWithOptions(view.bounds.size, NO, 0);
@@ -27,14 +25,10 @@ categories: jekyll update
 	UIGraphicsEndImageContext();
 	return snapshot;
 
-
-
 	How efficient is the faster API? It is about 1.8x faster on iPhone 5. Time elapsed was down from 90ms to 50ms.
 	If you want to create a view already drawn with the image, we can use an even more handy API:
 
-
 	UIView *newView = [view snapshotViewAfterScreenUpdates:YES];
-
 
 
 #### 2. 包括键盘的截屏 UIView+snapshot.m
