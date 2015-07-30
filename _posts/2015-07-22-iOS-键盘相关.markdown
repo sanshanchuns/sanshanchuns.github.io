@@ -116,7 +116,7 @@ categories: jekyll update
 
 
 #### 3. 自定义键盘
-
+	textField.inputView
 
 
 [jekyll]:      http://jekyllrb.com

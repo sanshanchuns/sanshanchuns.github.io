@@ -87,6 +87,12 @@ categories: jekyll update
         view.layer.anchorPoint = anchorPoint;
     }
 
+    - (void) setAnchorPoint:(CGPoint)anchorpoint forView:(UIView *)view{
+        CGRect oldFrame = view.frame;
+        view.layer.anchorPoint = anchorpoint;
+        view.frame = oldFrame;
+    }
+
 
 #### 3. pop Animation 倒计时
     
