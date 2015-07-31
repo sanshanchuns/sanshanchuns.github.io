@@ -101,9 +101,32 @@ categories: jekyll update
 	  }
 	})
 
+#### 8. 全局版本判断函数
 
+	function version () {
+	  var version = require('NSBundle').mainBundle().infoDictionary().objectForKey('CFBundleShortVersionString')
+	  return version.toJS()
+	}
 
+	function build () {
+	  var build = require('NSBundle').mainBundle().infoDictionary().objectForKey('CFBundleVersion')
+	  return build.toJS()
+	}
 
+#### 9. block 作为参数
+
+	OC
+	typedef void (^WVJBResponseCallback)(id responseData);
+
+	[_bridge registerHandler:@"platformInfo" handler:^(id data, WVJBResponseCallback responseCallback) {
+        	
+    	}];
+
+    	JS
+    	require('NSBlock')
+      	self.bridge().registerHandler_handler("testObjcCallback", block("id, NSBlock*", function(data, responseCallback){
+        
+      	}))
 
 
 

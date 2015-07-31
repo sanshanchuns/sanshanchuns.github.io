@@ -10,7 +10,7 @@ categories: jekyll update
 	fun 的不定参数 arguments.length
 
 	数组的基本方法
-	push, unshift, pop, shift
+	push, unshift, pop, shift, charAt
 
 	删除元素
 	splice(开始, 长度)
@@ -28,6 +28,23 @@ categories: jekyll update
 
 	clearInterval(timer)
 	clearTimeout(timer) 
+
+	Date 对象
+	getFullYear() 年 
+	getMonth()  月(0 ~ 11)
+	getDate()  日
+	getDay()  星期 (0 ~ 6) 星期日 ~ 星期六
+
+	隐藏和显示
+	oDiv.style.display = 'block'
+	oDiv.style.display = 'none'
+
+	div移动, 所谓移动就是绝对定位下修改left
+	首先 position:absolute; left:0; top:50px;
+	offsetLeft / offsetTop  是计算后的左边距 上边距
+	offsetWidth / offsetHeight 是计算后的 宽高
+
+	oDiv.style.left = oDiv.offsetLeft + 10 + 'px'
 
 
 [jekyll]:      http://jekyllrb.com
