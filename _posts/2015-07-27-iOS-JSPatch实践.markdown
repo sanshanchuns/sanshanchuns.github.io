@@ -55,9 +55,9 @@ categories: jekyll update
 #### 5. 可变/不可变 数组用 toJS() 转化
 
 	var vcs = self.viewControllers().toJS() //.获取属性  toJS()转换成JS数组
-    vcs.push(navi) //数组追加
+    	vcs.push(navi) //数组追加
 
-    var subviews = self.view().subviews().toJS()
+    	var subviews = self.view().subviews().toJS()
   	for (var i = 0; i < subviews.length; i++) {
   		subviews[i].removeFromSuperview()
   	}
@@ -67,18 +67,18 @@ categories: jekyll update
 	instead
 	viewDidLoad: function() {
   		self.super().viewDidLoad()
-  		/* 新逻辑 */
+  		//新逻辑
   	}
 
   	after
   	viewDidLoad: function() {
   		self.ORIGviewDidLoad() //原逻辑
-  		/* 新逻辑 */
+  		//新逻辑
   	}
   	
   	before
   	viewDidLoad: function() {
-  		/* 新逻辑 */
+  		//新逻辑
   		self.ORIGviewDidLoad() //原逻辑
   	}
 

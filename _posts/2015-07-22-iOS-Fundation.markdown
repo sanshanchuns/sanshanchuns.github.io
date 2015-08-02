@@ -65,7 +65,7 @@ categories: jekyll update
 
 #### 4. 通讯录中文字首字母
 
-	firstChar = [[NSString stringWithFormat:@"%c", pinyinFirstLetter([name characterAtIndex:0])]uppercaseString];
+	firstChar = [[NSString stringWithFormat:@"%c", pinyinFirstLetter([name characterAtIndex:0])] uppercaseString];
 
 
 
