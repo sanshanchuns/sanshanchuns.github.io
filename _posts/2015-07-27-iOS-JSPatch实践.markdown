@@ -62,26 +62,6 @@ categories: jekyll update
   		subviews[i].removeFromSuperview()
   	}
 
-#### 6. before, instead, after (self.ORIGXXXX)
-
-	instead
-	viewDidLoad: function() {
-  		self.super().viewDidLoad()
-  		//新逻辑
-  	}
-
-  	after
-  	viewDidLoad: function() {
-  		self.ORIGviewDidLoad() //原逻辑
-  		//新逻辑
-  	}
-  	
-  	before
-  	viewDidLoad: function() {
-  		//新逻辑
-  		self.ORIGviewDidLoad() //原逻辑
-  	}
-
 #### 7. 定义类
 
 	defineClass('JPViewController: UIViewController', {
