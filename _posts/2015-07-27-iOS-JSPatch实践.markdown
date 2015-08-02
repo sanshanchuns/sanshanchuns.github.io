@@ -71,7 +71,7 @@ categories: jekyll update
 	b. after
 	self.ORIGviewXXXX() //原逻辑
 	自己的实现
-	
+
 	c. before
 	自己的实现
 	self.ORIGviewXXXX() //原逻辑
@@ -113,13 +113,13 @@ categories: jekyll update
 
 	[_bridge registerHandler:@"platformInfo" handler:^(id data, WVJBResponseCallback responseCallback) {
         	
-    	}];
+	}];
 
-    	JS
-    	require('NSBlock')
-      	self.bridge().registerHandler_handler("testObjcCallback", block("id, NSBlock*", function(data, responseCallback){
+	JS
+	require('NSBlock')
+	self.bridge().registerHandler_handler("testObjcCallback", block("id, NSBlock*", function(data, responseCallback){
         
-      	}))
+	}))
 
 
 
