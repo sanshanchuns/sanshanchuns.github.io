@@ -5,7 +5,7 @@ date:   2015-07-27-17:54:43
 categories: jekyll update
 ---
 
-#### 1. 引入新类
+#### 1. 引入新类test
 	
 	require('UIView, UIColor')
 	var view = UIView.alloc().init()
@@ -60,6 +60,26 @@ categories: jekyll update
     	var subviews = self.view().subviews().toJS()
   	for (var i = 0; i < subviews.length; i++) {
   		subviews[i].removeFromSuperview()
+  	}
+
+#### 6. before, instead, after (self.ORIGXXXX)
+
+	a. instead
+	viewDidLoad: function() {
+  		self.super().viewDidLoad()
+  		//新逻辑
+  	}
+
+  	b. after
+  	viewDidLoad: function() {
+  		self.ORIGviewDidLoad() //原逻辑
+  		//新逻辑
+  	}
+
+  	c. before
+  	viewDidLoad: function() {
+  		//新逻辑
+  		self.ORIGviewDidLoad() //原逻辑
   	}
 
 #### 7. 定义类
