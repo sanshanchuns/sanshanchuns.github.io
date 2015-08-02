@@ -39,6 +39,12 @@ categories: jekyll update
 	fir b . -w -C Release -S licaishi CODE_SIGN_IDENTITY="iPhone Distribution: Shanghai Noah Yijie Financial Tech Co., Ltd." -p
 	如此一来一条指令急速发布
 
+#### 5. 点菜命令
+
+	curl "http://10.21.200.75:99/dinner/order" -H "Pragma: no-cache" -H "Origin: http://10.21.200.75:99" -H "Accept-Encoding: gzip, deflate" -H "Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4,zh-TW;q=0.2" -H "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36" -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" -H "Accept: application/json, text/javascript, */*; q=0.01" -H "Cache-Control: no-cache" -H "X-Requested-With: XMLHttpRequest" -H "Connection: keep-alive" -H "Referer: http://10.21.200.75:99/" --data "no=5573&shop=3" --compressed
+
+	
+
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-help]: https://github.com/jekyll/jekyll-help

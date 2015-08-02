@@ -42,6 +42,9 @@ categories: jekyll update
 	如何安装, 请看这里<http://code4app.com/article/cocoapods-install-usage>
 	详细安装以及使用, 请看这里<https://guides.cocoapods.org/using/getting-started.html>
 
+	
+
+
 #### 5. plugin 插件管理
 	如何安装, 请看这里<http://alcatraz.io/>
 	xcode 升级, 插件失效, 如何解决? 请看这里<http://joeshang.github.io/2015/04/10/fix-xcode-upgrade-plugin-invalid/>
