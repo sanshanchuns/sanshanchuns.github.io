@@ -82,7 +82,6 @@ categories: jekyll update
   		self.ORIGviewDidLoad() //原逻辑
   	}
 
-
 #### 7. 定义类
 
 	defineClass('JPViewController: UIViewController', {
