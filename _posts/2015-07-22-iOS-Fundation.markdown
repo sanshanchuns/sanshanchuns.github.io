@@ -68,8 +68,48 @@ categories: jekyll update
 	firstChar = [[NSString stringWithFormat:@"%c", pinyinFirstLetter([name characterAtIndex:0])] uppercaseString];
 
 
+#### 5. runtime.h
+
+	/** 
+	 * Adds a new method to a class with a given name and implementation.
+	 * 
+	 * @param cls The class to which to add a method.
+	 * @param name A selector that specifies the name of the method being added.
+	 * @param imp A function which is the implementation of the new method. The function must take at least two arguments—self and _cmd.
+	 * @param types An array of characters that describe the types of the arguments to the method. 
+	 * 
+	 * @return YES if the method was added successfully, otherwise NO 
+	 *  (for example, the class already contains a method implementation with that name).
+	 *
+	 * @note class_addMethod will add an override of a superclass's implementation, 
+	 *  but will not replace an existing implementation in this class. 
+	 *  To change an existing implementation, use method_setImplementation.
+	 */
+	OBJC_EXPORT BOOL class_addMethod(Class cls, SEL name, IMP imp, const char *types)
+
+	类中添加一个方法, 当且仅当该类存在同名方法, 添加失败. 其他情况比如父类有同名方法, 则当前类重写该方法
+	如果想要改变一个已经存在的方式实现, 需要使用 method_setImplementation
 
 
+	/** 
+	 * Replaces the implementation of a method for a given class.
+	 * 
+	 * @param cls The class you want to modify.
+	 * @param name A selector that identifies the method whose implementation you want to replace.
+	 * @param imp The new implementation for the method identified by name for the class identified by cls.
+	 * @param types An array of characters that describe the types of the arguments to the method. 
+	 *  Since the function must take at least two arguments—self and _cmd, the second and third characters
+	 *  must be “@:” (the first character is the return type).
+	 * 
+	 * @return The previous implementation of the method identified by \e name for the class identified by \e cls.
+	 * 
+	 * @note This function behaves in two different ways:
+	 *  - If the method identified by \e name does not yet exist, it is added as if \c class_addMethod were called. 
+	 *    The type encoding specified by \e types is used as given.
+	 *  - If the method identified by \e name does exist, its \c IMP is replaced as if \c method_setImplementation were called.
+	 *    The type encoding specified by \e types is ignored.
+	 */
+	OBJC_EXPORT IMP class_replaceMethod(Class cls, SEL name, IMP imp, const char *types)
 
 
 
