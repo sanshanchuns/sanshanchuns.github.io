@@ -1,0 +1,45 @@
+---
+layout: post
+title:  GCD
+date:   2015-08-13-20:17:20
+categories: jekyll update
+---
+
+#### 1. 什么是GCD
+	
+	GCD 是 libdispatch 的市场名称，而 libdispatch 作为 Apple 的一个库，为并发代码在多核硬件（跑 iOS 或 OS X ）上执行提供有力支持。它具有以下优点：
+
+	GCD 能通过推迟昂贵计算任务并在后台运行它们来改善你的应用的响应性能。
+	GCD 提供一个易于使用的并发模型而不仅仅只是锁和线程，以帮助我们避开并发陷阱。
+	GCD 具有在常见模式（例如单例）上用更高性能的原语优化你的代码的潜在能力。
+
+#### 2. GCD术语
+
+	Serial vs. Concurrent 串行 vs. 并发
+	Synchronous vs. Asynchronous 同步 vs. 异步
+	Critical Section 临界区
+	Race Condition 竞态条件
+	Deadlock 死锁
+	Thread Safe 线程安全
+	Context Switch 上下文切换
+	Concurrency vs Parallelism 并发与并行
+	Queues 队列
+	Serial Queues 串行队列
+	Concurrent Queues 并发队列
+	Queue Types 队列类型
+
+#### 1. Queue Types 队列类型
+
+	首先，系统提供给你一个叫做 主队列（main queue） 的特殊队列。和其它串行队列一样，这个队列中的任务一次只能执行一个。然而，它能保证所有的任务都在主线程执行，而主线程是唯一可用于更新 UI 的线程。这个队列就是用于发生消息给 UIView 或发送通知的。
+
+	系统同时提供给你好几个并发队列。它们叫做 全局调度队列（Global Dispatch Queues） 。目前的四个全局队列有着不同的优先级：background、low、default 以及 high。要知道，Apple 的 API 也会使用这些队列，所以你添加的任何任务都不会是这些队列中唯一的任务。
+
+	最后，你也可以创建自己的串行队列或并发队列。这就是说，至少有五个队列任你处置：主队列、四个全局调度队列，再加上任何你自己创建的队列。
+
+	以上是调度队列的大框架！
+
+	GCD 的“艺术”归结为选择合适的队列来调度函数以提交你的工作。体验这一点的最好方式是走一遍下边的列子，我们沿途会提供一些一般性的建议
+
+[jekyll]:      http://jekyllrb.com
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-help]: https://github.com/jekyll/jekyll-help
