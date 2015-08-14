@@ -112,7 +112,9 @@ categories: jekyll update
 	OBJC_EXPORT IMP class_replaceMethod(Class cls, SEL name, IMP imp, const char *types)
 
 
-
+#### 6. GCD
+	
+	dispach_barrier_async / dispatch_barrier_sync 配合 a custom concurrent queue 可以实现并发的数据读写
 
 
 
