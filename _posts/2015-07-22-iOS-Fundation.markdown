@@ -112,12 +112,28 @@ categories: jekyll update
 	OBJC_EXPORT IMP class_replaceMethod(Class cls, SEL name, IMP imp, const char *types)
 
 
-#### 6. GCD
-	
-	dispach_barrier_async / dispatch_barrier_sync 配合 a custom concurrent queue 可以实现并发的数据读写
+#### 6. Cookie
 
+	NSURL *cookieHost = [NSURL URLWithString:kServerAddress];
+    
+    	NSHTTPCookie *cookieSkey = [NSHTTPCookie cookieWithProperties: @{NSHTTPCookieDomain:[cookieHost host], NSHTTPCookiePath:[cookieHost path], NSHTTPCookieName:@"skey", NSHTTPCookieValue:skey}];
+    	NSHTTPCookie *cookieDeviceId = [NSHTTPCookie cookieWithProperties: @{NSHTTPCookieDomain:[cookieHost host], NSHTTPCookiePath:[cookieHost path], NSHTTPCookieName:@"deviceId", NSHTTPCookieValue:[YJ_OpenUDID value]}];
+    	[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookieSkey];
+    	[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookieDeviceId];
 
+    	
+	NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:cookieHost];
+	for (NSHTTPCookie *cookie in cookies){
 
+	NSString* setCookie = [[NSString alloc] initWithFormat:@"%@=%@",[cookie name],[cookie value]];
+	NSDictionary* dict = @{@"Set-Cookie":setCookie};
+	NSArray *headeringCookie = [NSHTTPCookie cookiesWithResponseHeaderFields:dict forURL:cookieHost];
+
+	// 通过setCookies方法，完成设置，这样只要一访问URL为HOST的网页时，会自动附带上设置好的header
+	[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:headeringCookie
+	                                                   forURL:cookieHost
+	                                          mainDocumentURL:nil];
+	}
 
 
 
