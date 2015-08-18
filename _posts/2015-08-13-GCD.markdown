@@ -45,7 +45,54 @@ categories: jekyll update
 
 	GCD 的“艺术”归结为选择合适的队列来调度函数以提交你的工作。体验这一点的最好方式是走一遍下边的列子，我们沿途会提供一些一般性的建议
 
-#### 4. 处理读者与写者问题
+
+#### 4. dispatch_async
+
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{ // 1
+        	UIImage *overlayImage = [self faceOverlayImageFromImage:_image];
+        	dispatch_async(dispatch_get_main_queue(), ^{ // 2
+            		[self fadeInNewImage:overlayImage]; // 3
+        	});
+    	});
+
+    	As mentioned above, dispatch_async appends a block onto a queue and returns immediately. The task will then be executed at some later time as decided by GCD. Use dispatch_async when you need to perform a network-based or CPU intensive task in the background and not block the current thread.
+	
+	Here’s a quick guide of how and when to use the various queue types with dispatch_async:
+
+	a. Custom Serial Queue: A good choice when you want to perform background work serially and track it. This eliminates resource contention since you know only one task at a time is executing. Note that if you need the data from a method, you must inline another block to retrieve it or consider using dispatch_sync.
+
+	b. Main Queue (Serial): This is a common choice to update the UI after completing work in a task on a concurrent queue. To do this, you’ll code one block inside another. As well, if you’re in the main queue and call dispatch_async targeting the main queue, you can guarantee that this new task will execute sometime after the current method finishes.
+
+	c. Concurrent Queue: This is a common choice to perform non-UI work in the background.
+
+#### 5. dispatch_after
+
+	double delayInSeconds = 1.0;
+	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC)); // 1 
+	dispatch_after(popTime, dispatch_get_main_queue(), ^(void){ // 2 
+
+	});
+
+	Wondering when it’s appropriate to use dispatch_after?
+	a. Custom Serial Queue: Use caution when using dispatch_after on a custom serial queue. You’re better off sticking to the main queue.
+	b. Main Queue (Serial): This is a good choice for dispatch_after; Xcode has a nice autocomplete template for this.
+	c. Concurrent Queue: Use caution when using dispatch_after on custom concurrent queues; it’s rare that you’ll do this. Stick to the main queue for these operations.
+
+#### 6. dispatch_once
+	
+	static PhotoManager *sharedPhotoManager = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		sharedPhotoManager = [[PhotoManager alloc] init];
+		sharedPhotoManager->_photosArray = [NSMutableArray array];
+	});
+	return sharedPhotoManager;
+
+	dispatch_once() executes a block once and only once in a thread safe manner. Different threads that try to access the critical section — the code passed to dispatch_once — while a thread is already in this section are blocked until the critical section completes.
+
+	It should be noted that this just makes access to the shared instance thread safe. It does not make the class thread safe, necessarily. You could still have other critical sections in the class, for instance anything that manipulates internal data. Those would need to be made thread safe in other ways, such as synchronising access to the data
+
+#### 7. dispatch_barrier_async (处理读者与写者问题)
 
 	线程安全实例不是处理单例时的唯一问题。如果单例属性表示一个可变对象，那么你就需要考虑是否那个对象自身线程安全。
 
@@ -102,11 +149,123 @@ categories: jekyll update
 	}
 	这里使用 dispatch_queue_create 初始化 concurrentPhotoQueue 为一个并发队列。第一个参数是反向DNS样式命名惯例；确保它是描述性的，将有助于调试。第二个参数指定你的队列是串行还是并发
 
-#### 5. dispatch_apply
+	Dispatch barriers are a group of functions acting as a serial-style bottleneck when working with concurrent queues. Using GCD’s barrier API ensures that the submitted block is the only item executed on the specified queue for that particular time. This means that all items submitted to the queue prior to the dispatch barrier must complete before the block will execute.
+	When the block’s turn arrives, the barrier executes the block and ensures that the queue does not execute any other blocks during that time. Once finished, the queue returns to its default implementation. GCD provides both synchronous and asynchronous barrier functions
+
+	Notice how in normal operation the queue acts just like a normal concurrent queue. But when the barrier is executing, it essentially acts like a serial queue. That is, the barrier is the only thing executing. After the barrier finishes, the queue goes back to being a normal concurrent queue.
+	
+	Here’s when you would — and wouldn’t — use barrier functions:
+	
+	a. Custom Serial Queue: A bad choice here; barriers won’t do anything helpful since a serial queue executes one operation at a time anyway.
+	
+	b. Global Concurrent Queue: Use caution here; this probably isn’t the best idea since other systems might be using the queues and you don’t want to monopolize them for your own purposes.
+	
+	c. Custom Concurrent Queue: This is a great choice for atomic or critical areas of code. Anything you’re setting or instantiating that needs to be thread safe is a great candidate for a barrier.
+	
+	Since the only decent choice above is the custom concurrent queue, you’ll need to create one of your own to handle your barrier function and separate the read and write functions. The concurrent queue will allow multiple read operations simultaneously.
+
+
+#### 8. dispatch_sync
+
+	a. Custom Serial Queue: Be VERY careful in this situation; if you’re running in a queue and call dispatch_sync targeting the same queue, you will definitely create a deadlock.
+	b. Main Queue (Serial): Be VERY careful for the same reasons as above; this situation also has potential for a deadlock condition.
+	c. Concurrent Queue: This is a good candidate to sync work through dispatch barriers or when waiting for a task to complete so you can perform further processing.
+
+#### 9. dispatch_group_t
+
+	a. dispatch_group_wait
+
+	The first one, dispatch_group_wait, is a function that blocks your current thread and waits until either all the tasks in the group have completed, or until a timeout occurs. This is exactly what you want in this case.
+
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{ // 1
+ 
+        __block NSError *error;
+        dispatch_group_t downloadGroup = dispatch_group_create(); // 2
+ 
+        for (NSInteger i = 0; i < 3; i++) {
+            NSURL *url;
+            switch (i) {
+                case 0:
+                    url = [NSURL URLWithString:kOverlyAttachedGirlfriendURLString];
+                    break;
+                case 1:
+                    url = [NSURL URLWithString:kSuccessKidURLString];
+                    break;
+                case 2:
+                    url = [NSURL URLWithString:kLotsOfFacesURLString];
+                    break;
+                default:
+                    break;
+            }
+ 
+            dispatch_group_enter(downloadGroup); // 3
+            Photo *photo = [[Photo alloc] initwithURL:url
+                                  withCompletionBlock:^(UIImage *image, NSError *_error) {
+                                      if (_error) {
+                                          error = _error;
+                                      }
+                                      dispatch_group_leave(downloadGroup); // 4
+                                  }];
+ 
+            [[PhotoManager sharedManager] addPhoto:photo];
+        }
+        dispatch_group_wait(downloadGroup, DISPATCH_TIME_FOREVER); // 5
+        dispatch_async(dispatch_get_main_queue(), ^{ // 6
+            if (completionBlock) { // 7
+                completionBlock(error);
+            }
+        });
+    	});
+    
+    	5. dispatch_group_wait waits until either all of the tasks are complete or until the time expires. If the time expires before all events complete, the function will return a non-zero result. You could put this into a conditional block to check if the waiting period expired; however, in this case you specified for it to wait forever by supplying DISPATCH_TIME_FOREVER. This means, unsurprisingly, it’ll wait, forever! That’s fine, because the completion of the photos creation will always complete
+    	
+
+	b. dispatch_group_notify
+
+	__block NSError *error;
+	dispatch_group_t downloadGroup = dispatch_group_create(); 
+
+	for (NSInteger i = 0; i < 3; i++) {
+	NSURL *url;
+	switch (i) {
+	    case 0:
+	        url = [NSURL URLWithString:kOverlyAttachedGirlfriendURLString];
+	        break;
+	    case 1:
+	        url = [NSURL URLWithString:kSuccessKidURLString];
+	        break;
+	    case 2:
+	        url = [NSURL URLWithString:kLotsOfFacesURLString];
+	        break;
+	    default:
+	        break;
+	}
+
+	dispatch_group_enter(downloadGroup); // 2
+	Photo *photo = [[Photo alloc] initwithURL:url
+	                      withCompletionBlock:^(UIImage *image, NSError *_error) {
+	                          if (_error) {
+	                              error = _error;
+	                          }
+	                          dispatch_group_leave(downloadGroup); // 3
+	                      }];
+
+	[[PhotoManager sharedManager] addPhoto:photo];
+	}
+
+	dispatch_group_notify(downloadGroup, dispatch_get_main_queue(), ^{ // 4
+		if (completionBlock) {
+	    		completionBlock(error);
+		}
+	});
+
+	4. dispatch_group_notify serves as the asynchronous completion block. This code executes when there are no more items left in the dispatch group and it’s the completion block’s turn to run. You also specify on which queue to run your completion code, here, the main queue is the one you want.
+
+
+#### 9. dispatch_apply
 	
 	dispatch_apply acts like a for loop which executes different iterations concurrently. This function is sychronous, so just like a normal for loop, dispatch_apply returns only when all of the work is done.
 
-	
 
 
 [jekyll]:      http://jekyllrb.com
