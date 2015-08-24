@@ -45,8 +45,39 @@ categories: jekyll update
 
 #### 6. iOS 推送
 	
-	http://tanqisen.github.io/blog/2013/02/27/ios-push-apns/
-	
+	推送看这里 <http://blog.csdn.net/showhilllee/article/details/8631734>
+
+	Payload就是push的消息负载，这就是应用需要关心的数据。 Payload是一个JSON字典，最大值是 256 字节，超过这个限制，APNS将拒绝转发。基本格式如下
+	{
+	    "aps": {
+	      "alert":"Hello Push!",
+	      "badge":1,
+	      "sound":"default"
+	    }
+	}
+
+	必须包含aps键值。badge表示应用程序图标显示的数字，sound表示收到push的提示音。 Payload的具体结构参考Apple Push Notification Service
+
+	要在这个结构中新增自定义数据，请加在aps空间之外。比如后台推送消息给应用同时要求应用打开某个页面：
+
+	{
+	    "aps": {
+	      "alert":"Hello Push!",
+	      "badge":1,
+	      "sound":"default"
+	    },
+	    "page":"home"
+	}
+
+	后台告诉客户端收到这个push后打开应用的主页，这里的page、home都是自己定义的。必须注意的是，Payload大小不能超过限制，所以可以把自定义数据更简化点，比如可以把home与编号1对应，page简写为p，这样"p":1表示打开主页，可以缩小Payload的大小
+
+	a. openssl x509 -in aps_development.cer -inform der -out PushChatCert.pem      //证书加密为pem
+	b. openssl pkcs12 -nocerts -out PushChatKey.pem -in Push.p12                //私钥加密为pem
+	c. cat PushChatCert.pem PushChatKey.pem > ck.pem                          // 证书 私钥 合并为一个加密文件
+	d. telnet gateway.sandbox.push.apple.com 2195				 // 测试 development 推送
+	e. openssl s_client -connect gateway.sandbox.push.apple.com:2195 -cert PushChatCert.pem -key PushChatKey.pem  //测试证书
+
+
 
 
 [jekyll]:      http://jekyllrb.com
