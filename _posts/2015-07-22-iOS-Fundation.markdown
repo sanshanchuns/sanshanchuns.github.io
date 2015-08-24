@@ -121,20 +121,16 @@ categories: jekyll update
     	[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookieSkey];
     	[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookieDeviceId];
 
-    	
-	NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:cookieHost];
-	for (NSHTTPCookie *cookie in cookies){
+#### 7. 系统声音播放
+        SystemSoundID sounds[0];
+	NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"msgcome" ofType:@"wav"];
+        CFURLRef soundURL = (__bridge CFURLRef)[NSURL fileURLWithPath:soundPath];
+        AudioServicesCreateSystemSoundID(soundURL, &sounds[0]);
+        AudioServicesPlaySystemSound(sounds[0]);
 
-	NSString* setCookie = [[NSString alloc] initWithFormat:@"%@=%@",[cookie name],[cookie value]];
-	NSDictionary* dict = @{@"Set-Cookie":setCookie};
-	NSArray *headeringCookie = [NSHTTPCookie cookiesWithResponseHeaderFields:dict forURL:cookieHost];
+        OR
 
-	// 通过setCookies方法，完成设置，这样只要一访问URL为HOST的网页时，会自动附带上设置好的header
-	[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:headeringCookie
-	                                                   forURL:cookieHost
-	                                          mainDocumentURL:nil];
-	}
-
+        AudioServicesPlaySystemSound (1007);   编号参考这里 <http://iphonedevwiki.net/index.php/AudioServices>
 
 
 
