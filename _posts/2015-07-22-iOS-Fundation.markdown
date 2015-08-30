@@ -132,7 +132,15 @@ categories: jekyll update
 
         AudioServicesPlaySystemSound (1007);   编号参考这里 <http://iphonedevwiki.net/index.php/AudioServices>
 
+#### 8. iOS7 custom-modalViewController-Transitions
 
+	<https://github.com/hightech/iOS-7-Custom-ModalViewController-Transitions>
+	
+
+
+
+
+	
 
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
