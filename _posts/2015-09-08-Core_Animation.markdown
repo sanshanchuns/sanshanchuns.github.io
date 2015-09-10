@@ -144,16 +144,280 @@ categories: jekyll update
 
     当shouldRasterize和UIViewGroupOpacity一起的时候，性能问题就出现了
 
-  	//enable rasterization for the translucent button
   	button2.layer.shouldRasterize = YES;
   	button2.layer.rasterizationScale = [UIScreen mainScreen].scale;
 
 5.1 仿射变换
 
 	UIView可以通过设置transform属性做变换，但实际上它只是封装了内部图层的变换.
-	CALayer同样也有一个transform属性，但它的类型是CATransform3D，而不是CGAffineTransform
+	注意哦, (^_^) CALayer同样也有一个transform属性，但它的类型是CATransform3D，而不是CGAffineTransform
 	CALayer对应于UIView的transform属性叫做affineTransform
+
+	CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_4);
+    self.layerView.layer.affineTransform = transform;
+
+    C的数学函数库（iOS会自动引入）提供了pi的一些简便的换算，M_PI_4于是就是pi的四分之一，如果对换算不太清楚的话，可以用如下的宏做换算：
+
+    #define RADIANS_TO_DEGREES(x) ((x)/M_PI*180.0)
+
+5.1.1 混合变换
+
+	如果需要混合两个已经存在的变换矩阵，就可以使用如下方法，在两个变换的基础上创建一个新的变换
+
+	CGAffineTransformConcat(CGAffineTransform t1, CGAffineTransform t2);
+
+	CGAffineTransform transform = CGAffineTransformIdentity; 
+    transform = CGAffineTransformScale(transform, 0.5, 0.5);//scale by 50%
+    transform = CGAffineTransformRotate(transform, M_PI / 180.0 * 30.0);//rotate by 30 degrees
+    transform = CGAffineTransformTranslate(transform, 200, 0);
+
+    self.layerView.layer.affineTransform = transform;
+
+    有些需要注意的地方：图片向右边发生了平移，但并没有指定距离那么远（200像素），另外它还有点向下发生了平移。原因在于当你按顺序做了变换，上一个变换的结果将会影响之后的变换，所以200像素的向右平移同样也被旋转了30度，缩小了50%，所以它实际上是斜向移动了100像素
+
+    这意味着变换的顺序会影响最终的结果，也就是说旋转之后的平移和平移之后的旋转结果可能不同
+
+5.2 3D变换
 	
+	和CGAffineTransform矩阵类似，Core Animation提供了一系列的方法用来创建和组合CATransform3D类型的矩阵，和Core Graphics的函数类似，但是3D的平移和旋转多处了一个z参数，并且旋转函数除了angle之外多出了x,y,z三个参数，分别决定了每个坐标轴方向上的旋转
+
+	CATransform3DMakeRotation(CGFloat angle, CGFloat x, CGFloat y, CGFloat z)
+	CATransform3DMakeScale(CGFloat sx, CGFloat sy, CGFloat sz) 
+	CATransform3DMakeTranslation(Gloat tx, CGFloat ty, CGFloat tz)
+
+	CATransform3D transform = CATransform3DMakeRotation(M_PI_4, 0, 1, 0);
+    self.layerView.layer.transform = transform;
+
+5.2.1 透视投影 (生成虚像)
+
+	为了做一些修正，我们需要引入投影变换（又称作z变换）来对除了旋转之外的变换矩阵做一些修改，Core Animation并没有给我们提供设置透视变换的函数，因此我们需要手动修改矩阵值，幸运的是，很简单：
+
+	CATransform3D的透视效果通过一个矩阵中一个很简单的元素来控制：m34。m34用于按比例缩放X和Y的值来计算到底要离视角多远.m34的默认值是0，我们可以通过设置m34为-1.0 / d来应用透视效果，d代表了想象中视角相机和屏幕之间的距离，以像素为单位，那应该如何计算这个距离呢？实际上并不需要，大概估算一个就好了.
+
+	因为视角相机实际上并不存在，所以可以根据屏幕上的显示效果自由决定它的防止的位置。通常500-1000就已经很好了，但对于特定的图层有时候更小后者更大的值会看起来更舒服，减少距离的值会增强透视效果，所以一个非常微小的值会让它看起来更加失真，然而一个非常大的值会让它基本失去透视效果
+
+    CATransform3D transform = CATransform3DIdentity;
+    transform.m34 = - 1.0 / 500.0;
+    transform = CATransform3DRotate(transform, M_PI_4, 0, 1, 0);
+    self.layerView.layer.transform = transform;
+
+
+5.2.2 组透视 sublayerTransform
+
+	CALayer有一个属性叫做sublayerTransform。它也是CATransform3D类型，但和对一个图层的变换不同，它影响到所有的子图层。这意味着你可以一次性对包含这些图层的容器做变换，于是所有的子图层都自动继承了这个变换方法
+
+    CATransform3D perspective = CATransform3DIdentity;
+    perspective.m34 = - 1.0 / 500.0;
+    self.containerView.layer.sublayerTransform = perspective;
+
+    //rotate layerView1 by 45 degrees along the Y axis
+    CATransform3D transform1 = CATransform3DMakeRotation(M_PI_4, 0, 1, 0);
+    self.layerView1.layer.transform = transform1;
+
+    //rotate layerView2 by 45 degrees along the Y axis
+    CATransform3D transform2 = CATransform3DMakeRotation(-M_PI_4, 0, 1, 0);
+    self.layerView2.layer.transform = transform2;
+
+5.2.3 背面 doubleSided
+
+	我们既然可以在3D场景下旋转图层，那么也可以从背面去观察它。如果我们在清单5.4中把角度修改为M_PI（180度）而不是当前的M_PI_4（45度），那么将会把图层完全旋转一个半圈，于是完全背对了相机视角
+
+	那么从背部看图层是什么样的呢? 视图的背面，一个镜像对称的图片
+	如你所见，图层是双面绘制的，反面显示的是正面的一个镜像图片。
+
+	但这并不是一个很好的特性，因为如果图层包含文本或者其他控件，那用户看到这些内容的镜像图片当然会感到困惑。另外也有可能造成资源的浪费：想象用这些图层形成一个不透明的固态立方体，既然永远都看不见这些图层的背面，那为什么浪费GPU来绘制它们呢？
+
+	CALayer有一个叫做 doubleSided 的属性来控制图层的背面是否要被绘制。这是一个BOOL类型，默认为YES，
+	如果设置为NO，那么当图层正面从相机视角消失的时候，它将不会被绘制.
+
+5.3 立方体
+
+	#import "ViewController.h"
+	#import <GLKit/GLKit.h>
+
+	#define LIGHT_DIRECTION 0, 1, -0.5
+	#define AMBIENT_LIGHT 0.5
+
+	@interface ViewController ()
+
+	@property (nonatomic, strong) UIView *containerView;
+	@property (nonatomic, strong) NSMutableArray *faces;
+
+	@end
+
+	@implementation ViewController
+
+	- (void)addFace:(NSInteger)index withTransform:(CATransform3D)transform
+	{
+	    //get the face view and add it to the container
+	    UIView *face = self.faces[index];
+	    [self.containerView addSubview:face];
+	    //center the face view within the container
+	    CGSize containerSize = self.containerView.bounds.size;
+	    face.center = CGPointMake(containerSize.width / 2.0, containerSize.height / 2.0);
+	    // apply the transform
+	    face.layer.transform = transform;
+	    //apply lighting
+	    [self applyLightingToFace:face.layer];
+	}
+
+	- (void)viewDidLoad
+	{
+	    [super viewDidLoad];
+	    
+	    self.containerView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+	    [self.view addSubview:self.containerView];
+	    
+	    self.faces = [NSMutableArray arrayWithCapacity:6];
+	    
+	    for (int i = 0; i < 6; i++) {
+	        UIView* view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 200)];
+	        view.backgroundColor = [UIColor whiteColor];
+	        view.layer.borderWidth = 1;
+	        if (i == 2 || i == 1 || i == 0) {
+	            view.userInteractionEnabled = YES;
+	        } else {
+	            view.userInteractionEnabled = NO;
+	        }
+	        
+	        UIButton* button = [UIButton buttonWithType:UIButtonTypeCustom];
+	        button.frame = CGRectMake(0, 0, 100, 100);
+	        button.layer.cornerRadius = 10;
+	        [button setTitle:[NSString stringWithFormat:@"%d", i] forState:UIControlStateNormal];
+	        [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+	        [button setTitleColor:[UIColor redColor] forState:UIControlStateHighlighted];
+	        button.backgroundColor = [UIColor blueColor];
+	        button.center = view.center;
+	        button.titleLabel.font = [UIFont systemFontOfSize:50];
+	        button.titleLabel.textAlignment = NSTextAlignmentCenter;
+	        
+	        [view addSubview:button];
+	        [self.faces addObject:view];
+	        [self.containerView addSubview:view];
+	    }
+	    
+	    //set up the container sublayer transform
+	    CATransform3D perspective = CATransform3DIdentity;
+	    perspective.m34 = -1.0 / 500.0;
+	    perspective = CATransform3DRotate(perspective, -M_PI_4, 1, 0, 0);
+	    perspective = CATransform3DRotate(perspective, -M_PI_4, 0, 1, 0);
+	    self.containerView.layer.sublayerTransform = perspective;
+	    //add cube face 1
+	    CATransform3D transform = CATransform3DMakeTranslation(0, 0, 100);
+	    [self addFace:0 withTransform:transform];
+	    //add cube face 2
+	    transform = CATransform3DMakeTranslation(100, 0, 0);
+	    transform = CATransform3DRotate(transform, M_PI_2, 0, 1, 0);
+	    [self addFace:1 withTransform:transform];
+	    //add cube face 3
+	    transform = CATransform3DMakeTranslation(0, -100, 0);
+	    transform = CATransform3DRotate(transform, M_PI_2, 1, 0, 0);
+	    [self addFace:2 withTransform:transform];
+	    //add cube face 4
+	    transform = CATransform3DMakeTranslation(0, 100, 0);
+	    transform = CATransform3DRotate(transform, -M_PI_2, 1, 0, 0);
+	    [self addFace:3 withTransform:transform];
+	    //add cube face 5
+	    transform = CATransform3DMakeTranslation(-100, 0, 0);
+	    transform = CATransform3DRotate(transform, -M_PI_2, 0, 1, 0);
+	    [self addFace:4 withTransform:transform];
+	    //add cube face 6
+	    transform = CATransform3DMakeTranslation(0, 0, -100);
+	    transform = CATransform3DRotate(transform, M_PI, 0, 1, 0);
+	    [self addFace:5 withTransform:transform];
+	}
+
+	- (void)applyLightingToFace:(CALayer *)face
+	{
+	    //add lighting layer
+	    CALayer *layer = [CALayer layer];
+	    layer.frame = face.bounds;
+	    [face addSublayer:layer];
+	    //convert the face transform to matrix
+	    //(GLKMatrix4 has the same structure as CATransform3D)
+	    //译者注：GLKMatrix4和CATransform3D内存结构一致，但坐标类型有长度区别，所以理论上应该做一次float到CGFloat的转换，感谢[@zihuyishi](https://github.com/zihuyishi)同学~
+	    CATransform3D transform = face.transform;
+	    GLKMatrix4 matrix4 = *(GLKMatrix4 *)&transform;
+	    GLKMatrix3 matrix3 = GLKMatrix4GetMatrix3(matrix4);
+	    //get face normal
+	    GLKVector3 normal = GLKVector3Make(0, 0, 1);
+	    normal = GLKMatrix3MultiplyVector3(matrix3, normal);
+	    normal = GLKVector3Normalize(normal);
+	    //get dot product with light direction
+	    GLKVector3 light = GLKVector3Normalize(GLKVector3Make(LIGHT_DIRECTION));
+	    float dotProduct = GLKVector3DotProduct(light, normal);
+	    //set lighting layer opacity
+	    CGFloat shadow = 1 + dotProduct - AMBIENT_LIGHT;
+	    UIColor *color = [UIColor colorWithWhite:0 alpha:shadow];
+	    layer.backgroundColor = color.CGColor;
+	}
+
+6.1 CAShaperLayer
+
+	CAShapeLayer是一个通过矢量图形而不是bitmap来绘制的图层子类。你指定诸如颜色和线宽等属性，用CGPath来定义想要绘制的图形，最后CAShapeLayer就自动渲染出来了。当然，你也可以用Core Graphics直接向原始的CALyer的内容中绘制一个路径，相比直下，使用CAShapeLayer有以下一些优点：
+
+	- 渲染快速。CAShapeLayer使用了硬件加速，绘制同一图形会比用Core Graphics快很多。
+	- 高效使用内存。一个CAShapeLayer不需要像普通CALayer一样创建一个寄宿图形，所以无论有多大，都不会占用太多的内存。
+	- 不会被图层边界剪裁掉。一个CAShapeLayer可以在边界之外绘制。你的图层路径不会像在使用Core Graphics 的普通 CALayer 一样被剪裁掉（如我们在第二章所见）。
+	- 不会出现像素化。当你给CAShapeLayer做3D变换时，它不像一个有寄宿图的普通图层一样变得像素化。
+
+	虽然使用CAShapeLayer类需要更多的工作，但是它有一个优势就是可以单独指定每个角。
+	我们创建圆角矩形其实就是人工绘制单独的直线和弧度，但是事实上UIBezierPath有自动绘制圆角矩形的构造方法，下面这段代码绘制了一个有三个圆角一个直角的矩形：
+
+	CGRect rect = CGRectMake(50, 50, 100, 100);
+	CGSize radii = CGSizeMake(20, 20);
+	UIRectCorner corners = UIRectCornerTopRight | UIRectCornerBottomRight | UIRectCornerBottomLeft;
+
+	UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect byRoundingCorners:corners cornerRadii:radii];
+
+6.2 CATextLayer
+
+	Core Animation提供了一个CALayer的子类CATextLayer，它以图层的形式包含了UILabel几乎所有的绘制特性，并且额外提供了一些新的特性.
+	同样，CATextLayer也要比UILabel渲染得快得多。很少有人知道在iOS 6及之前的版本，UILabel其实是通过WebKit来实现绘制的，这样就造成了当有很多文字的时候就会有极大的性能压力。而CATextLayer使用了Core text，并且渲染得非常快
+
+	CATextLayer *textLayer = [CATextLayer layer];
+	textLayer.frame = self.labelView.bounds;
+	[self.labelView.layer addSublayer:textLayer];
+
+	//set text attributes
+	textLayer.foregroundColor = [UIColor blackColor].CGColor;
+	textLayer.alignmentMode = kCAAlignmentJustified;
+	textLayer.wrapped = YES;
+
+	//choose a font
+	UIFont *font = [UIFont systemFontOfSize:15];
+
+	//set layer font
+	CFStringRef fontName = (__bridge CFStringRef)font.fontName;
+	CGFontRef fontRef = CGFontCreateWithFontName(fontName);
+	textLayer.font = fontRef;
+	textLayer.fontSize = font.pointSize;
+	CGFontRelease(fontRef);
+
+	//choose some text
+	NSString *text = @"test";
+
+	//set layer text
+	textLayer.string = text;
+
+	如果你仔细看这个文本，你会发现一个奇怪的地方：这些文本有一些像素化了。这是因为并没有以Retina的方式渲染，第二章提到了这个contentScale属性，用来决定图层内容应该以怎样的分辨率来渲染。contentsScale并不关心屏幕的拉伸因素而总是默认为1.0。如果我们想以Retina的质量来显示文字，我们就得手动地设置CATextLayer的contentsScale属性，如下：
+
+	textLayer.contentsScale = [UIScreen mainScreen].scale;
+
+	CATextLayer的font属性不是一个UIFont类型，而是一个CFTypeRef类型。这样可以根据你的具体需要来决定字体属性应该是用CGFontRef类型还是CTFontRef类型（Core Text字体）。同时字体大小也是用fontSize属性单独设置的，因为CTFontRef和CGFontRef并不像UIFont一样包含点大小。这个例子会告诉你如何将UIFont转换成CGFontRef。
+
+	另外，CATextLayer的string属性并不是你想象的NSString类型，而是id类型。这样你既可以用NSString也可以用NSAttributedString来指定文本了（注意，NSAttributedString并不是NSString的子类）。属性化字符串是iOS用来渲染字体风格的机制，它以特定的方式来决定指定范围内的字符串的原始信息，比如字体，颜色，字重，斜体等
+
+6.2.1 UILabel 的替代品
+
+	我们真正想要的是一个用CATextLayer作为宿主图层的UILabel子类，这样就可以随着视图自动调整大小而且也没有冗余的寄宿图啦。
+
+	就像我们在第一章『图层树』讨论的一样，每一个UIView都是寄宿在一个CALayer的示例上。这个图层是由视图自动创建和管理的，那我们可以用别的图层类型替代它么？一旦被创建，我们就无法代替这个图层了。但是如果我们继承了UIView，那我们就可以重写+layerClass方法使得在创建的时候能返回一个不同的图层子类。UIView会在初始化的时候调用+layerClass方法，然后用它的返回类型来创建宿主图层
+
+	+ (Class)layerClass
+	{
+		return [CATextLayer class]; //backing layer
+	}
 
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
