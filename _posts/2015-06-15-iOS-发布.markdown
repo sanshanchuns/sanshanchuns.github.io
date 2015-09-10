@@ -76,6 +76,7 @@ categories: jekyll update
 	c. cat PushChatCert.pem PushChatKey.pem > ck.pem                          // 证书 私钥 合并为一个加密文件
 	d. telnet gateway.sandbox.push.apple.com 2195				 // 测试 development 推送
 	e. openssl s_client -connect gateway.sandbox.push.apple.com:2195 -cert PushChatCert.pem -key PushChatKey.pem  //测试证书
+	f. openssl s_client -connect gateway.push.apple.com:2195 -cert PushChatCert.pem -key PushChatKey.pem  //测试证书
 
 
 
