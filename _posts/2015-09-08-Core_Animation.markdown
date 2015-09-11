@@ -352,7 +352,7 @@ categories: jekyll update
 	    layer.backgroundColor = color.CGColor;
 	}
 
-6.1 CAShaperLayer
+6.1 形状层 CAShaperLayer
 
 	CAShapeLayer是一个通过矢量图形而不是bitmap来绘制的图层子类。你指定诸如颜色和线宽等属性，用CGPath来定义想要绘制的图形，最后CAShapeLayer就自动渲染出来了。当然，你也可以用Core Graphics直接向原始的CALyer的内容中绘制一个路径，相比直下，使用CAShapeLayer有以下一些优点：
 
@@ -370,7 +370,7 @@ categories: jekyll update
 
 	UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect byRoundingCorners:corners cornerRadii:radii];
 
-6.2 CATextLayer
+6.2 文本层 CATextLayer
 
 	Core Animation提供了一个CALayer的子类CATextLayer，它以图层的形式包含了UILabel几乎所有的绘制特性，并且额外提供了一些新的特性.
 	同样，CATextLayer也要比UILabel渲染得快得多。很少有人知道在iOS 6及之前的版本，UILabel其实是通过WebKit来实现绘制的，这样就造成了当有很多文字的时候就会有极大的性能压力。而CATextLayer使用了Core text，并且渲染得非常快
@@ -418,6 +418,355 @@ categories: jekyll update
 	{
 		return [CATextLayer class]; //backing layer
 	}
+
+6.3 3D变换层 CATransformLayer
+
+	Core Animation图层很容易就可以让你在2D环境下做出这样的层级体系下的变换，但是3D情况下就不太可能，因为所有的图层都把他的孩子都平面化到一个场景中（第五章『变换』有提到）。
+
+	CATransformLayer解决了这个问题，CATransformLayer不同于普通的CALayer，因为它不能显示它自己的内容。只有当存在了一个能作用域子图层的变换它才真正存在。CATransformLayer并不平面化它的子图层，所以它能够用于构造一个层级的3D结构，比如我的手臂示例
+
+
+6.4 渐变层 CAGradientLayer	
+
+	CAGradientLayer 是用来生成两种或更多颜色平滑渐变的。用Core Graphics 复制一个 CAGradientLayer 并将内容绘制到一个普通图层的寄宿图也是有可能的, 但是 CAGradientLayer 的真正好处在于绘制使用了硬件加速
+
+	//set gradient colors
+  	gradientLayer.colors = @[(__bridge id)[UIColor redColor].CGColor, (__bridge id)[UIColor blueColor].CGColor];
+
+  	//set gradient start and end points
+  	gradientLayer.startPoint = CGPointMake(0, 0);
+  	gradientLayer.endPoint = CGPointMake(1, 1);
+
+6.4.1 多重渐变
+
+	如果你愿意，colors属性可以包含很多颜色，所以创建一个彩虹一样的多重渐变也是很简单的。默认情况下，这些颜色在空间上均匀地被渲染，但是我们可以用locations属性来调整空间。locations属性是一个浮点数值的数组（以NSNumber包装）。这些浮点数定义了colors属性中每个不同颜色的位置，同样的，也是以单位坐标系进行标定。0.0代表着渐变的开始，1.0代表着结束
+
+	locations数组并不是强制要求的，但是如果你给它赋值了就一定要确保locations的数组大小和colors数组大小一定要相同，否则你将会得到一个空白的渐变。
+
+	gradientLayer.locations = @[@0.0, @0.25, @0.5];
+
+6.5 重复图层 CAReplicatorLayer
+
+	反射效果
+
+	@implementation ReflectionView
+	+ (Class)layerClass
+	{
+	    return [CAReplicatorLayer class];
+	}
+
+	- (void)setUp
+	{
+	    //configure replicator
+	    CAReplicatorLayer *layer = (CAReplicatorLayer *)self.layer;
+	    layer.instanceCount = 2;
+
+	    //move reflection instance below original and flip vertically
+	    CATransform3D transform = CATransform3DIdentity;
+	    CGFloat verticalOffset = self.bounds.size.height + 2;
+	    transform = CATransform3DTranslate(transform, 0, verticalOffset, 0);
+	    transform = CATransform3DScale(transform, 1, -1, 0);
+	    layer.instanceTransform = transform;
+
+	    //reduce alpha of reflection layer
+	    layer.instanceAlphaOffset = -0.6;
+	}
+	￼
+	- (id)initWithFrame:(CGRect)frame
+	{
+	    //this is called when view is created in code
+	    if ((self = [super initWithFrame:frame])) {
+	        [self setUp];
+	    }
+	    return self;
+	}
+
+	- (void)awakeFromNib
+	{
+	    //this is called when view is created from a nib
+	    [self setUp];
+	}
+	@end
+
+6.6 CAScrollLayer 滑动图层, 基本忽略
+
+6.7 CATiledLayer 瓦片图层
+
+	能高效绘制在iOS上的图片也有一个大小限制。所有显示在屏幕上的图片最终都会被转化为OpenGL纹理，同时OpenGL有一个最大的纹理尺寸（通常是2048*2048，或4096*4096，这个取决于设备型号）。如果你想在单个纹理中显示一个比这大的图，即便图片已经存在于内存中了，你仍然会遇到很大的性能问题，因为Core Animation强制用CPU处理图片而不是更快的GPU（见第12章『速度的曲调』，和第13章『高效绘图』，它更加详细地解释了软件绘制和硬件绘制）。
+
+	CATiledLayer 为载入大图造成的性能问题提供了一个解决方案：将大图分解成小片然后将他们单独按需载入.
+
+	裁剪成瓦片
+
+	这个示例中，我们将会从一个2048*2048分辨率的雪人图片入手。这个程序将2048*2048分辨率的雪人图案裁剪成了64个不同的256*256的小图。
+
+	CATiledLayer很好地和UIScrollView集成在一起。除了设置图层和滑动视图边界以适配整个图片大小，我们真正要做的就是实现-drawLayer:inContext:方法，当需要载入新的小图时，CATiledLayer就会调用到这个方法
+
+	- (void)viewDidLoad
+	{
+	    [super viewDidLoad];
+	    //add the tiled layer
+	    CATiledLayer *tileLayer = [CATiledLayer layer];￼
+	    tileLayer.frame = CGRectMake(0, 0, 2048, 2048);
+	    tileLayer.contentsScale = [UIScreen mainScreen].scale;
+	    tileLayer.delegate = self; [self.scrollView.layer addSublayer:tileLayer];
+
+	    //configure the scroll view
+	    self.scrollView.contentSize = tileLayer.frame.size;
+
+	    //draw layer
+	    [tileLayer setNeedsDisplay];
+	}
+
+	- (void)drawLayer:(CATiledLayer *)layer inContext:(CGContextRef)ctx
+	{
+	    //determine tile coordinate
+	    CGRect bounds = CGContextGetClipBoundingBox(ctx);
+	    NSInteger x = floor(bounds.origin.x / layer.tileSize.width);
+	    NSInteger y = floor(bounds.origin.y / layer.tileSize.height);
+
+	    //load tile image
+	    NSString *imageName = [NSString stringWithFormat: @"Snowman_%02i_%02i", x, y];
+	    NSString *imagePath = [[NSBundle mainBundle] pathForResource:imageName ofType:@"jpg"];
+	    UIImage *tileImage = [UIImage imageWithContentsOfFile:imagePath];
+
+	    //draw tile
+	    UIGraphicsPushContext(ctx);
+	    [tileImage drawInRect:bounds];
+	    UIGraphicsPopContext();
+	}
+
+	当你滑动这个图片，你会发现当CATiledLayer载入小图的时候，他们会淡入到界面中。这是CATiledLayer的默认行为。
+	(你可能已经在iOS 6之前的苹果地图程序中见过这个效果) 你可以用fadeDuration属性改变淡入时长或直接禁用掉。
+	
+	CATiledLayer（不同于大部分的UIKit和Core Animation方法）支持多线程绘制，-drawLayer:inContext: 方法可以在多个线程中同时地并发调用，所以请小心谨慎地确保你在这个方法中实现的绘制代码是线程安全的。
+
+
+6.8 CAEmitterLayer 粒子效果图层
+
+	- (void)viewDidLoad
+	{
+	    [super viewDidLoad];
+	    ￼
+	    //create particle emitter layer
+	    CAEmitterLayer *emitter = [CAEmitterLayer layer];
+	    emitter.frame = self.containerView.bounds;
+	    [self.containerView.layer addSublayer:emitter];
+
+	    //configure emitter
+	    emitter.renderMode = kCAEmitterLayerAdditive;
+	    emitter.emitterPosition = CGPointMake(emitter.frame.size.width / 2.0, emitter.frame.size.height / 2.0);
+
+	    //create a particle template
+	    CAEmitterCell *cell = [[CAEmitterCell alloc] init];
+	    cell.contents = (__bridge id)[UIImage imageNamed:@"Spark.png"].CGImage;
+	    cell.birthRate = 150;
+	    cell.lifetime = 5.0;
+	    cell.color = [UIColor colorWithRed:1 green:0.5 blue:0.1 alpha:1.0].CGColor;
+	    cell.alphaSpeed = -0.4;
+	    cell.velocity = 50;
+	    cell.velocityRange = 50;
+	    cell.emissionRange = M_PI * 2.0;
+
+	    //add particle template to emitter
+	    emitter.emitterCells = @[cell];
+	}
+
+
+	CAEMitterCell的属性基本上可以分为三种：
+
+	- 这种粒子的某一属性的初始值。比如，color属性指定了一个可以混合图片内容颜色的混合色。在示例中，我们将它设置为桔色。
+	- 例子某一属性的变化范围。比如emissionRange属性的值是2π，这意味着例子可以从360度任意位置反射出来。如果指定一个小一些的值，就可以创造出一个圆锥形
+	- 指定值在时间线上的变化。比如，在示例中，我们将alphaSpeed设置为-0.4，就是说例子的透明度每过一秒就是减少0.4，这样就有发射出去之后逐渐小时的效果。
+	
+	CAEmitterLayer的属性它自己控制着整个例子系统的位置和形状。一些属性比如birthRate，lifetime和celocity，这些属性在CAEmitterCell中也有。这些属性会以相乘的方式作用在一起，这样你就可以用一个值来加速或者扩大整个例子系统。其他值得提到的属性有以下这些：
+
+	- preservesDepth，是否将3D例子系统平面化到一个图层（默认值）或者可以在3D空间中混合其他的图层
+	- renderMode，控制着在视觉上粒子图片是如何混合的。你可能已经注意到了示例中我们把它设置为kCAEmitterLayerAdditive，它实现了这样一个效果：合并例子重叠部分的亮度使得看上去更亮。如果我们把它设置为默认的kCAEmitterLayerUnordered，效果就没那么好看了（见图6.14）.
+
+
+6.9 CAEAGLLayer 
+
+	当iOS要处理高性能图形绘制，必要时就是OpenGL。应该说它应该是最后的杀手锏，至少对于非游戏的应用来说是的。因为相比Core Animation和UIkit框架，它不可思议地复杂
+
+	OpenGL提供了Core Animation的基础，它是底层的C接口，直接和iPhone，iPad的硬件通信，极少地抽象出来的方法。OpenGL没有对象或是图层的继承概念。它只是简单地处理三角形。OpenGL中所有东西都是3D空间中有颜色和纹理的三角形。用起来非常复杂和强大，但是用OpenGL绘制iOS用户界面就需要很多很多的工作了。
+
+	在iOS 5中，苹果引入了一个新的框架叫做GLKit，它去掉了一些设置OpenGL的复杂性，提供了一个叫做CLKView的UIView的子类，帮你处理大部分的设置和绘制工作。前提是各种各样的OpenGL绘图缓冲的底层可配置项仍然需要你用CAEAGLLayer完成，它是CALayer的一个子类，用来显示任意的OpenGL图形。
+
+	- (void)setUpBuffers
+	{
+	    //set up frame buffer
+	    glGenFramebuffers(1, &_framebuffer);
+	    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+
+	    //set up color render buffer
+	    glGenRenderbuffers(1, &_colorRenderbuffer);
+	    glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderbuffer);
+	    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderbuffer);
+	    [self.glContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:self.glLayer];
+	    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &_framebufferWidth);
+	    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &_framebufferHeight);
+
+	    //check success
+	    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+	        NSLog(@"Failed to make complete framebuffer object: %i", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+	    }
+	}
+
+	- (void)tearDownBuffers
+	{
+	    if (_framebuffer) {
+	        //delete framebuffer
+	        glDeleteFramebuffers(1, &_framebuffer);
+	        _framebuffer = 0;
+	    }
+
+	    if (_colorRenderbuffer) {
+	        //delete color render buffer
+	        glDeleteRenderbuffers(1, &_colorRenderbuffer);
+	        _colorRenderbuffer = 0;
+	    }
+	}
+
+	- (void)drawFrame {
+	    //bind framebuffer & set viewport
+	    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	    glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+
+	    //bind shader program
+	    [self.effect prepareToDraw];
+
+	    //clear the screen
+	    glClear(GL_COLOR_BUFFER_BIT); glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	    //set up vertices
+	    GLfloat vertices[] = {
+	        -0.5f, -0.5f, -1.0f, 0.0f, 0.5f, -1.0f, 0.5f, -0.5f, -1.0f,
+	    };
+
+	    //set up colors
+	    GLfloat colors[] = {
+	        0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+	    };
+
+	    //draw triangle
+	    glEnableVertexAttribArray(GLKVertexAttribPosition);
+	    glEnableVertexAttribArray(GLKVertexAttribColor);
+	    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+	    glVertexAttribPointer(GLKVertexAttribColor,4, GL_FLOAT, GL_FALSE, 0, colors);
+	    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	    //present render buffer
+	    glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderbuffer);
+	    [self.glContext presentRenderbuffer:GL_RENDERBUFFER];
+	}
+
+	- (void)viewDidLoad
+	{
+	    [super viewDidLoad];
+	    //set up context
+	    self.glContext = [[EAGLContext alloc] initWithAPI: kEAGLRenderingAPIOpenGLES2];
+	    [EAGLContext setCurrentContext:self.glContext];
+
+	    //set up layer
+	    self.glLayer = [CAEAGLLayer layer];
+	    self.glLayer.frame = self.glView.bounds;
+	    [self.glView.layer addSublayer:self.glLayer];
+	    self.glLayer.drawableProperties = @{kEAGLDrawablePropertyRetainedBacking:@NO, kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8};
+
+	    //set up base effect
+	    self.effect = [[GLKBaseEffect alloc] init];
+
+	    //set up buffers
+	    [self setUpBuffers];
+
+	    //draw frame
+	    [self drawFrame];
+	}
+
+	- (void)viewDidUnload
+	{
+	    [self tearDownBuffers];
+	    [super viewDidUnload];
+	}
+
+	- (void)dealloc
+	{
+	    [self tearDownBuffers];
+	    [EAGLContext setCurrentContext:nil];
+	}
+
+
+	在一个真正的OpenGL应用中，我们可能会用NSTimer或CADisplayLink周期性地每秒钟调用-drawRrame方法60次，同时会将几何图形生成和绘制分开以便不会每次都重新生成三角形的顶点（这样也可以让我们绘制其他的一些东西而不是一个三角形而已），不过上面这个例子已经足够演示了绘图原则了
+
+6.10 AVPlayerLayer
+
+	最后一个图层类型是AVPlayerLayer。尽管它不是Core Animation框架的一部分（AV前缀看上去像），AVPlayerLayer是有别的框架（AVFoundation）提供的，它和Core Animation紧密地结合在一起，提供了一个CALayer子类来显示自定义的内容类型
+
+	AVPlayerLayer是用来在iOS上播放视频的。他是高级接口例如MPMoivePlayer的底层实现，提供了显示视频的底层控制。AVPlayerLayer的使用相当简单：你可以用+playerLayerWithPlayer:方法创建一个已经绑定了视频播放器的图层，或者你可以先创建一个图层，然后用player属性绑定一个AVPlayer实例。
+
+	//get video URL
+	NSURL *URL = [[NSBundle mainBundle] URLForResource:@"Ship" withExtension:@"mp4"];
+
+	//create player and player layer
+	AVPlayer *player = [AVPlayer playerWithURL:URL];
+	AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+
+	//set player layer frame and attach it to our view
+	playerLayer.frame = self.containerView.bounds;
+	[self.containerView.layer addSublayer:playerLayer];
+
+	//进行一些变换
+	CATransform3D transform = CATransform3DIdentity;
+	transform.m34 = -1.0 / 500.0;
+	transform = CATransform3DRotate(transform, M_PI_4, 1, 1, 0);
+	playerLayer.transform = transform;
+	￼
+	//添加圆角和边框
+	playerLayer.masksToBounds = YES;
+	playerLayer.cornerRadius = 20.0;
+	playerLayer.borderColor = [UIColor redColor].CGColor;
+	playerLayer.borderWidth = 5.0;
+
+	//播放视频
+	[player play];
+
+	当然，因为AVPlayerLayer是CALayer的子类，它继承了父类的所有特性。我们并不会受限于要在一个矩形中播放视频；清单6.16演示了在3D，圆角，有色边框，蒙板，阴影等效果
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
