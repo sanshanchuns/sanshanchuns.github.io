@@ -664,11 +664,11 @@ categories: jekyll update
 	- (void)viewDidLoad
 	{
 	    [super viewDidLoad];
-	    //set up context
+	    //设置上下文
 	    self.glContext = [[EAGLContext alloc] initWithAPI: kEAGLRenderingAPIOpenGLES2];
 	    [EAGLContext setCurrentContext:self.glContext];
 
-	    //set up layer
+	    //设置EAGL图层
 	    self.glLayer = [CAEAGLLayer layer];
 	    self.glLayer.frame = self.glView.bounds;
 	    [self.glView.layer addSublayer:self.glLayer];
@@ -699,20 +699,20 @@ categories: jekyll update
 
 	在一个真正的OpenGL应用中，我们可能会用NSTimer或CADisplayLink周期性地每秒钟调用-drawRrame方法60次，同时会将几何图形生成和绘制分开以便不会每次都重新生成三角形的顶点（这样也可以让我们绘制其他的一些东西而不是一个三角形而已），不过上面这个例子已经足够演示了绘图原则了
 
-6.10 AVPlayerLayer
+6.10 AVPlayerLayer 视频播放图层
 
 	最后一个图层类型是AVPlayerLayer。尽管它不是Core Animation框架的一部分（AV前缀看上去像），AVPlayerLayer是有别的框架（AVFoundation）提供的，它和Core Animation紧密地结合在一起，提供了一个CALayer子类来显示自定义的内容类型
 
 	AVPlayerLayer是用来在iOS上播放视频的。他是高级接口例如MPMoivePlayer的底层实现，提供了显示视频的底层控制。AVPlayerLayer的使用相当简单：你可以用+playerLayerWithPlayer:方法创建一个已经绑定了视频播放器的图层，或者你可以先创建一个图层，然后用player属性绑定一个AVPlayer实例。
 
-	//get video URL
+	//获取媒体资源
 	NSURL *URL = [[NSBundle mainBundle] URLForResource:@"Ship" withExtension:@"mp4"];
 
-	//create player and player layer
+	//创建播放器和播放图层
 	AVPlayer *player = [AVPlayer playerWithURL:URL];
 	AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
 
-	//set player layer frame and attach it to our view
+	//设置播放图层的大小
 	playerLayer.frame = self.containerView.bounds;
 	[self.containerView.layer addSublayer:playerLayer];
 
@@ -734,9 +734,50 @@ categories: jekyll update
 	当然，因为AVPlayerLayer是CALayer的子类，它继承了父类的所有特性。我们并不会受限于要在一个矩形中播放视频；清单6.16演示了在3D，圆角，有色边框，蒙板，阴影等效果
 
 
+7.3  图层行为
 
+	试着直接对UIView关联的图层做动画而不是一个单独的图层,图层颜色瞬间切换到新的值，而不是之前平滑过渡的动画。发生了什么呢？隐式动画好像被UIView关联图层给禁用了.
 
+	试想一下，如果UIView的属性都有动画特性的话，那么无论在什么时候修改它，我们都应该能注意到的。所以，如果说UIKit建立在Core Animation（默认对所有东西都做动画）之上，那么隐式动画是如何被UIKit禁用掉呢？
 
+	我们知道 Core Animation 通常对 CALayer 的所有属性（可动画的属性）做动画，但是 UIView 把它关联的图层的这个特性关闭了.为了更好说明这一点, 我们需要知道隐式动画是如何实现的。
+
+	我们把改变属性时CALayer自动应用的动画称作行为，当CALayer的属性被修改时候，它会调用-actionForKey: 方法，传递属性的名称.剩下的操作都在 CALayer 的头文件中有详细的说明,实质上是如下几步：
+
+	图层首先检测它是否有委托，并且是否实现CALayerDelegate协议指定的-actionForLayer:forKey方法。如果有，直接调用并返回结果。
+	如果没有委托，或者委托没有实现-actionForLayer:forKey方法，图层接着检查包含属性名称对应行为映射的actions字典。
+	如果actions字典没有包含对应的属性，那么图层接着在它的style字典接着搜索属性名。
+	最后，如果在style里面也找不到对应的行为，那么图层将会直接调用定义了每个属性的标准行为的-defaultActionForKey:方法。
+
+	于是这就解释了UIKit是如何禁用隐式动画的：每个UIView对它关联的图层都扮演了一个委托，并且提供了-actionForLayer:forKey的实现方法。当不在一个动画块的实现中，UIView对所有图层行为返回nil，但是在动画block范围之内，它就返回了一个非空值。我们可以用一个demo做个简单的实验
+
+	- (void)viewDidLoad
+	{
+	    [super viewDidLoad];
+	    //test layer action when outside of animation block
+	    NSLog(@"Outside: %@", [self.layerView actionForLayer:self.layerView.layer forKey:@"backgroundColor"]);
+	    //begin animation block
+	    [UIView beginAnimations:nil context:nil];
+	    //test layer action when inside of animation block
+	    NSLog(@"Inside: %@", [self.layerView actionForLayer:self.layerView.layer forKey:@"backgroundColor"]);
+	    //end animation block
+	    [UIView commitAnimations];
+	}
+
+	$ LayerTest[21215:c07] Outside: <null>
+	$ LayerTest[21215:c07] Inside: <CABasicAnimation: 0x757f090>
+
+	于是我们可以预言，当属性在动画块之外发生改变，UIView直接通过返回nil来禁用隐式动画。但如果在动画块范围之内，根据动画具体类型返回相应的属性，在这个例子就是CABasicAnimation（第八章“显式动画”将会提到）。
+
+	当然返回nil并不是禁用隐式动画唯一的办法，CATransacition有个方法叫做+setDisableActions:，可以用来对所有属性打开或者关闭隐式动画。如果在清单7.2的[CATransaction begin]之后添加下面的代码，同样也会阻止动画的发生：
+
+	[CATransaction setDisableActions:YES];
+
+	总结一下，我们知道了如下几点
+
+	UIView关联的图层禁用了隐式动画，对这种图层做动画的唯一办法就是使用UIView的动画函数（而不是依赖CATransaction），或者继承UIView，并覆盖-actionForLayer:forKey:方法，或者直接创建一个显式动画（具体细节见第八章）。
+	
+	对于单独存在的图层，我们可以通过实现图层的-actionForLayer:forKey:委托方法，或者提供一个actions字典来控制隐式动画。
 
 
 
