@@ -120,6 +120,26 @@ categories: jekyll update
 	git rm --cached file_path  //.gitignore 中已经忽略对应文件, 但已经被追踪
 	git tag -a tag_name -m 'commit'  //打标签
 
+#### 6. xcode build 自增脚本
+
+	#/bin/sh
+	# Date: 2015-06-29
+	# Author: leo
+
+	#Run when "Build Configuration" is "Release". You can change to "ad_hoc","Release" and so on
+	if [ "${CONFIGURATION}" = "Release" ]; then
+	export LC_CTYPE=en_US.UTF-8
+	#version=`git rev-parse HEAD`
+	#version=`expr ${version:0:7}`
+	buildNumber=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$INFOPLIST_FILE")
+	buildNumberPrefix=${buildNumber:0:6}
+	buildNumberSuffix=$((${buildNumber:6} + 1))
+	buildNumber=$(printf "%s%s" "$buildNumberPrefix" "$buildNumberSuffix")
+	#`osascript -e 'tell app "System Events" to (display dialog "'${buildNumber}'" with title "IPA一键分享" buttons {"ok"})'`
+	/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $buildNumber" $PRODUCT_SETTINGS_PATH
+	fi
+	exit 0
+
 
 
 
