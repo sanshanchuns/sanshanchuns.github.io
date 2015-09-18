@@ -110,15 +110,50 @@ categories: jekyll update
 	
 	git add .
 	git commit -m"your comment about this commit"
+
 	git pull origin master  //拉取远程仓库
 	git pull --rebase origin master //先拉取远程仓库, 再并上当前的修改提交
+
 	git push origin master //推送到远程仓库
+	git push origin --delete <branchName>  删除远程分支
+	git push origin --delete tag <tagname>  删除远程tag
+
 	git merge branch //合并branch到当前分支
-	git branch -D master  //删除分支
-	git checkout -b new_branch //创建新分支
-	git clean -f  //删除没有追踪的文件
-	git rm --cached file_path  //.gitignore 中已经忽略对应文件, 但已经被追踪
+	git merge commit //合并commit到当前所在分支
+
+	git status -sb //查看工作区,暂存区,仓库状态
+
+	git branch -D master //删除分支
+	git branch -v //查看当前所有分支与远程仓库同名分支的差异
+
+	git clean -f //删除没有追踪的文件
+	git clean -nd //查看工作区中的目录和文件(没有提交到暂存区)
+	git clean -fd //删除工作区中的目录和文件(没有使用git add . ,整个世界清静了)
+
+	git ls-files //列出暂存区(本地仓库)中的文件
+	git ls-files --with-tree=HEAD^  //查看某次提交版本中所有的文件(当前可能已经被git rm 删除)
+
+	git cat-file -p HEAD^:<fileName>  //查看历史提交版本中某个文件的内容(当前可能已经被git rm 删除)
+	git show HEAD^:<fileName>
+	git show   =  git cat-file -p
+
+	git rm --cached <file_path> //.gitignore 中已经忽略对应文件, 但已经被追踪
+
+	git tag --list //列出标签
 	git tag -a tag_name -m 'commit'  //打标签
+
+	git stash //将当前状态保存
+	git stash list //查看保存的进度
+	git stash pop  //从最近保存的进度进行, 保存的进度删除
+	git stash apply //从最近保存的进度恢复, 保存进度保留
+
+	git checkout <filename>  //撤销本次没有加入暂存区的修改 (没有使用 git add 的前提下)
+	git checkout . //撤销本次所有修改(没有使用 git add 的前提下)
+	git checkout <branch> <filename>  //HEAD 指向不变, 以branch下的文件 覆盖当前工作区和暂存区的同名文件
+	git checkout -b <new_branch> //创建新分支
+	git checkout //显示当前工作区,暂存区与HEAD的差异
+	git checkout HEAD //同上
+	
 
 #### 6. xcode build 自增脚本
 
