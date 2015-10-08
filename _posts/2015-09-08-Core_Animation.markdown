@@ -59,7 +59,7 @@ categories: jekyll update
 
 	我们已经知道图层阴影并不总是方的，而是从图层内容的形状继承而来。这看上去不错，但是实时计算阴影也是一个非常消耗资源的，尤其是图层有多个子图层，每个图层还有一个有透明效果的寄宿图的时候。
 
-    如果你事先知道你的阴影形状会是什么样子的，你可以通过指定一个shadowPath来提高性能。shadowPath是一个CGPathRef类型（一个指向CGPath的指针）。CGPath是一个Core Graphics对象，用来指定任意的一个矢量图形。我们可以通过这个属性单独于图层形状之外指定阴影的形状
+    	如果你事先知道你的阴影形状会是什么样子的，你可以通过指定一个shadowPath来提高性能。shadowPath是一个CGPathRef类型（一个指向CGPath的指针）。CGPath是一个Core Graphics对象，用来指定任意的一个矢量图形。我们可以通过这个属性单独于图层形状之外指定阴影的形状
 
 	//create a square shadow
 	CGMutablePathRef squarePath = CGPathCreateMutable();
@@ -77,9 +77,9 @@ categories: jekyll update
 
 	CALayer有一个属性叫做mask可以解决这个问题。这个属性本身就是个CALayer类型，有和其他图层一样的绘制和布局属性。它类似于一个子图层，相对于父图层（即拥有该属性的图层）布局，但是它却不是一个普通的子图层。不同于那些绘制在父图层中的子图层，mask图层定义了父图层的部分可见区域。
 
-    mask图层的Color属性是无关紧要的，真正重要的是图层的轮廓。mask属性就像是一个饼干切割机，mask图层实心的部分会被保留下来，其他的则会被抛弃.
+    	mask图层的Color属性是无关紧要的，真正重要的是图层的轮廓。mask属性就像是一个饼干切割机，mask图层实心的部分会被保留下来，其他的则会被抛弃.
 
-    如果mask图层比父图层要小，只有在mask图层里面的内容才是它关心的，除此以外的一切都会被隐藏起来
+    	如果mask图层比父图层要小，只有在mask图层里面的内容才是它关心的，除此以外的一切都会被隐藏起来
 
 	//create mask layer
 	CALayer *maskLayer = [CALayer layer];
@@ -98,27 +98,27 @@ categories: jekyll update
 	- 能更好的使用内存，因为这就是所有你要存储的东西。
 	- 最好的性能表现，CPU不需要为此额外的计算。
 
-    不过有时候，显示一个非真实大小的图片确实是我们需要的效果。比如说一个头像或是图片的缩略图，再比如说一个可以被拖拽和伸缩的大图。这些情况下，为同一图片的不同大小存储不同的图片显得又不切实际
+    	不过有时候，显示一个非真实大小的图片确实是我们需要的效果。比如说一个头像或是图片的缩略图，再比如说一个可以被拖拽和伸缩的大图。这些情况下，为同一图片的不同大小存储不同的图片显得又不切实际
 	
 	当图片需要显示不同的大小的时候，有一种叫做拉伸过滤的算法就起到作用了。它作用于原图的像素上并根据需要生成新的像素显示在屏幕上。
 
-    事实上，重绘图片大小也没有一个统一的通用算法。这取决于需要拉伸的内容，放大或是缩小的需求等这些因素。CALayer为此提供了三种拉伸过滤方法，他们是：
+    	事实上，重绘图片大小也没有一个统一的通用算法。这取决于需要拉伸的内容，放大或是缩小的需求等这些因素。CALayer为此提供了三种拉伸过滤方法，他们是：
 
 	- kCAFilterLinear
 	- kCAFilterNearest
 	- kCAFilterTrilinear
 
-    minification（缩小图片）和magnification（放大图片）默认的过滤器都是 kCAFilterLinear, 这个过滤器采用双线性滤波算法, 它在大多数情况下都表现良好.
+    	minification（缩小图片）和magnification（放大图片）默认的过滤器都是 kCAFilterLinear, 这个过滤器采用双线性滤波算法, 它在大多数情况下都表现良好.
 
-    kCAFilterTrilinear 和 kCAFilterLinear 非常相似，大部分情况下二者都看不出来有什么差别。但是，较双线性滤波算法而言，三线性滤波算法存储了多个大小情况下的图片（也叫多重贴图），并三维取样，同时结合大图和小图的存储进而得到最后的结果。
+	kCAFilterTrilinear 和 kCAFilterLinear 非常相似，大部分情况下二者都看不出来有什么差别。但是，较双线性滤波算法而言，三线性滤波算法存储了多个大小情况下的图片（也叫多重贴图），并三维取样，同时结合大图和小图的存储进而得到最后的结果。
 
-    这个方法的好处在于算法能够从一系列已经接近于最终大小的图片中得到想要的结果，也就是说不要对很多像素同步取样。这不仅提高了性能，也避免了小概率因舍入错误引起的取样失灵的问题
+	这个方法的好处在于算法能够从一系列已经接近于最终大小的图片中得到想要的结果，也就是说不要对很多像素同步取样。这不仅提高了性能，也避免了小概率因舍入错误引起的取样失灵的问题
 
-    总的来说，对于比较小的图或者是差异特别明显，极少斜线的大图，kCAFilterNearest 会保留这种差异明显的特质以呈现更好的结果。但是对于大多数的图尤其是有很多斜线或是曲线轮廓的图片来说，kCAFilterNearest 会导致更差的结果。 换句话说，线性过滤保留了形状，最近过滤则保留了像素的差异。
+	总的来说，对于比较小的图或者是差异特别明显，极少斜线的大图，kCAFilterNearest 会保留这种差异明显的特质以呈现更好的结果。但是对于大多数的图尤其是有很多斜线或是曲线轮廓的图片来说，kCAFilterNearest 会导致更差的结果。 换句话说，线性过滤保留了形状，最近过滤则保留了像素的差异。
 
-    UIImage *digits = [UIImage imageNamed:@"Digits.png"];
+	UIImage *digits = [UIImage imageNamed:@"Digits.png"];
 
-    //set up digit views
+	//set up digit views
   	for (UIView *view in self.digitViews) {
     	//set contents
     	view.layer.contents = (__bridge id)digits.CGImage;
@@ -142,7 +142,7 @@ categories: jekyll update
 
 	为了启用shouldRasterize属性，我们设置了图层的rasterizationScale属性。默认情况下，所有图层拉伸都是1.0， 所以如果你使用了shouldRasterize属性，你就要确保你设置了rasterizationScale属性去匹配屏幕，以防止出现Retina屏幕像素化的问题。
 
-    当shouldRasterize和UIViewGroupOpacity一起的时候，性能问题就出现了
+    	当shouldRasterize和UIViewGroupOpacity一起的时候，性能问题就出现了
 
   	button2.layer.shouldRasterize = YES;
   	button2.layer.rasterizationScale = [UIScreen mainScreen].scale;
@@ -154,11 +154,11 @@ categories: jekyll update
 	CALayer对应于UIView的transform属性叫做affineTransform
 
 	CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_4);
-    self.layerView.layer.affineTransform = transform;
+    	self.layerView.layer.affineTransform = transform;
 
-    C的数学函数库（iOS会自动引入）提供了pi的一些简便的换算，M_PI_4于是就是pi的四分之一，如果对换算不太清楚的话，可以用如下的宏做换算：
+    	C的数学函数库（iOS会自动引入）提供了pi的一些简便的换算，M_PI_4于是就是pi的四分之一，如果对换算不太清楚的话，可以用如下的宏做换算：
 
-    #define RADIANS_TO_DEGREES(x) ((x)/M_PI*180.0)
+    	#define RADIANS_TO_DEGREES(x) ((x)/M_PI*180.0)
 
 5.1.1 混合变换
 
@@ -167,15 +167,15 @@ categories: jekyll update
 	CGAffineTransformConcat(CGAffineTransform t1, CGAffineTransform t2);
 
 	CGAffineTransform transform = CGAffineTransformIdentity; 
-    transform = CGAffineTransformScale(transform, 0.5, 0.5);//scale by 50%
-    transform = CGAffineTransformRotate(transform, M_PI / 180.0 * 30.0);//rotate by 30 degrees
-    transform = CGAffineTransformTranslate(transform, 200, 0);
+    	transform = CGAffineTransformScale(transform, 0.5, 0.5);//scale by 50%
+    	transform = CGAffineTransformRotate(transform, M_PI / 180.0 * 30.0);//rotate by 30 degrees
+    	transform = CGAffineTransformTranslate(transform, 200, 0);
 
-    self.layerView.layer.affineTransform = transform;
+    	self.layerView.layer.affineTransform = transform;
 
-    有些需要注意的地方：图片向右边发生了平移，但并没有指定距离那么远（200像素），另外它还有点向下发生了平移。原因在于当你按顺序做了变换，上一个变换的结果将会影响之后的变换，所以200像素的向右平移同样也被旋转了30度，缩小了50%，所以它实际上是斜向移动了100像素
+    	有些需要注意的地方：图片向右边发生了平移，但并没有指定距离那么远（200像素），另外它还有点向下发生了平移。原因在于当你按顺序做了变换，上一个变换的结果将会影响之后的变换，所以200像素的向右平移同样也被旋转了30度，缩小了50%，所以它实际上是斜向移动了100像素
 
-    这意味着变换的顺序会影响最终的结果，也就是说旋转之后的平移和平移之后的旋转结果可能不同
+    	这意味着变换的顺序会影响最终的结果，也就是说旋转之后的平移和平移之后的旋转结果可能不同
 
 5.2 3D变换
 	
@@ -744,66 +744,154 @@ categories: jekyll update
 
 	我们把改变属性时CALayer自动应用的动画称作行为，当CALayer的属性被修改时候，它会调用-actionForKey: 方法，传递属性的名称.剩下的操作都在 CALayer 的头文件中有详细的说明,实质上是如下几步：
 
-	图层首先检测它是否有委托，并且是否实现CALayerDelegate协议指定的-actionForLayer:forKey方法。如果有，直接调用并返回结果。
-	如果没有委托，或者委托没有实现-actionForLayer:forKey方法，图层接着检查包含属性名称对应行为映射的actions字典。
-	如果actions字典没有包含对应的属性，那么图层接着在它的style字典接着搜索属性名。
-	最后，如果在style里面也找不到对应的行为，那么图层将会直接调用定义了每个属性的标准行为的-defaultActionForKey:方法。
+	a. 图层首先检测它是否有委托，并且是否实现CALayerDelegate协议指定的-actionForLayer:forKey方法。如果有，直接调用并返回结果。
+	b. 如果没有委托，或者委托没有实现-actionForLayer:forKey方法，图层接着检查包含属性名称对应行为映射的actions字典。
+	c. 如果actions字典没有包含对应的属性，那么图层接着在它的style字典接着搜索属性名。
+	d. 最后，如果在style里面也找不到对应的行为，那么图层将会直接调用定义了每个属性的标准行为的-defaultActionForKey:方法。
 
-	于是这就解释了UIKit是如何禁用隐式动画的：每个UIView对它关联的图层都扮演了一个委托，并且提供了-actionForLayer:forKey的实现方法。当不在一个动画块的实现中，UIView对所有图层行为返回nil，但是在动画block范围之内，它就返回了一个非空值。我们可以用一个demo做个简单的实验
+	于是这就解释了UIKit是如何禁用隐式动画的：每个UIView对它关联的图层都扮演了一个委托，并且提供了-actionForLayer:forKey 的实现方法
+	当不在一个动画块的实现中，UIView对所有图层行为返回nil，但是在动画block范围之内，它就返回了一个非空值。
+
+	我们可以用一个demo做个简单的实验
 
 	- (void)viewDidLoad
 	{
 	    [super viewDidLoad];
-	    //test layer action when outside of animation block
+	    
 	    NSLog(@"Outside: %@", [self.layerView actionForLayer:self.layerView.layer forKey:@"backgroundColor"]);
-	    //begin animation block
+
 	    [UIView beginAnimations:nil context:nil];
-	    //test layer action when inside of animation block
 	    NSLog(@"Inside: %@", [self.layerView actionForLayer:self.layerView.layer forKey:@"backgroundColor"]);
-	    //end animation block
 	    [UIView commitAnimations];
 	}
 
 	$ LayerTest[21215:c07] Outside: <null>
 	$ LayerTest[21215:c07] Inside: <CABasicAnimation: 0x757f090>
 
-	于是我们可以预言，当属性在动画块之外发生改变，UIView直接通过返回nil来禁用隐式动画。但如果在动画块范围之内，根据动画具体类型返回相应的属性，在这个例子就是CABasicAnimation（第八章“显式动画”将会提到）。
+	于是我们可以预言，当属性在动画块之外发生改变，UIView直接通过返回nil来禁用隐式动画。
+	但如果在动画块范围之内，根据动画具体类型返回相应的属性，在这个例子就是CABasicAnimation（第八章“显式动画”将会提到）。
 
-	当然返回nil并不是禁用隐式动画唯一的办法，CATransacition有个方法叫做+setDisableActions:，可以用来对所有属性打开或者关闭隐式动画。如果在清单7.2的[CATransaction begin]之后添加下面的代码，同样也会阻止动画的发生：
+	当然返回nil并不是禁用隐式动画唯一的办法，CATransacition有个方法叫做+setDisableActions:，可以用来对所有属性打开或者关闭隐式动画。
+	如果在清单7.2的[CATransaction begin]之后添加下面的代码，同样也会阻止动画的发生：
 
 	[CATransaction setDisableActions:YES];
 
 	总结一下，我们知道了如下几点
 
-	UIView关联的图层禁用了隐式动画，对这种图层做动画的唯一办法就是使用UIView的动画函数（而不是依赖CATransaction），或者继承UIView，并覆盖-actionForLayer:forKey:方法，或者直接创建一个显式动画（具体细节见第八章）。
+	a. UIView关联的图层禁用了隐式动画，对这种图层做动画的唯一办法就是使用UIView的动画函数（而不是依赖CATransaction)
+	b. 或者继承UIView，并覆盖-actionForLayer:forKey:方法，或者直接创建一个显式动画（具体细节见第八章）。
 	
 	对于单独存在的图层，我们可以通过实现图层的-actionForLayer:forKey:委托方法，或者提供一个actions字典来控制隐式动画。
 
+	//add a custom action
+	CATransition *transition = [CATransition animation];
+	transition.type = kCATransitionPush;
+	transition.subtype = kCATransitionFromLeft;
+	self.colorLayer.actions = @{@"backgroundColor": transition};
+
+	
+7.4 呈现与模型 presentationLayer, modelLayer
+
+	在iOS中，屏幕每秒钟重绘60次。如果动画时长比60分之一秒要长，Core Animation就需要在设置一次新值和新值生效之间，对屏幕上的图层进行重新组织。这意味着CALayer除了“真实”值（就是你设置的值）之外，必须要知道当前显示在屏幕上的属性值的记录。
+
+	每个图层属性的显示值都被存储在一个叫做呈现图层的独立图层当中，他可以通过-presentationLayer方法来访问。这个呈现图层实际上是模型图层的复制，但是它的属性值代表了在任何指定时刻当前外观效果。换句话说，你可以通过呈现图层的值来获取当前屏幕上真正显示出来的值
+
+	你可能注意到有一个叫做–modelLayer的方法。在呈现图层上调用–modelLayer将会返回它正在呈现所依赖的CALayer。通常在一个图层上调用-modelLayer会返回–self（实际上我们已经创建的原始图层就是一种数据模型)
+
+	大多数情况下，你不需要直接访问呈现图层，你可以通过和模型图层的交互，来让Core Animation 更新显示。 
+	两种情况下呈现图层会变得很有用，一个是同步动画，一个是处理用户交互。
+
+	a. 如果你在实现一个基于定时器的动画（见第11章“基于定时器的动画”），而不仅仅是基于事务的动画，这个时候准确地知道在某一时刻图层显示在什么位置就会对正确摆放图层很有用了。
+	b. 如果你想让你做动画的图层响应用户输入，你可以使用-hitTest:方法（见第三章“图层几何学”）来判断指定图层是否被触摸，这时候对呈现图层而不是模型图层调用-hitTest:会显得更有意义，因为呈现图层代表了用户当前看到的图层位置，而不是当前动画结束之后的位置。
+	我们可以用一个简单的案例来证明后者（见清单7.7）。
+
+	在这个例子中，点击屏幕上的任意位置将会让图层平移到那里。点击图层本身可以随机改变它的颜色。我们通过对呈现图层调用-hitTest:来判断是否被点击。
+	如果修改代码让-hitTest:直接作用于colorLayer而不是呈现图层，你会发现当图层移动的时候它并不能正确显示。
+	这时候你就需要点击图层将要移动到的位置而不是图层本身来响应点击（这就是为什么用呈现图层来响应交互的原因
 
 
+	- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+	{
+	    //get the touch point
+	    CGPoint point = [[touches anyObject] locationInView:self.view];
+	    //check if we've tapped the moving layer
+	    if ([self.colorLayer.presentationLayer hitTest:point]) {  //动画变换过程中任一时刻的层
+	        //randomize the layer background color
+	        CGFloat red = arc4random() / (CGFloat)INT_MAX;
+	        CGFloat green = arc4random() / (CGFloat)INT_MAX;
+	        CGFloat blue = arc4random() / (CGFloat)INT_MAX;
+	        self.colorLayer.backgroundColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0].CGColor;
+	    } else {
+	        //otherwise (slowly) move the layer to new position
+	        [CATransaction begin];
+	        [CATransaction setAnimationDuration:4.0];
+	        self.colorLayer.position = point;
+	        [CATransaction commit];
+	    }
+	}
 
 
+8.1 属性动画
+	
+	当使用-addAnimation:forKey:把动画添加到图层，这里有一个到目前为止我们都设置为nil的key参数。这里的键是-animationForKey:方法找到对应动画的唯一标识符，而当前动画的所有键都可以用animationKeys获取。如果我们对每个动画都关联一个唯一的键，就可以对每个图层循环所有键，然后调用-animationForKey:来比对结果。尽管这不是一个优雅的实现。
+
+	幸运的是，还有一种更加简单的方法。像所有的NSObject子类一样，CAAnimation实现了KVC（键-值-编码）协议，于是你可以用-setValue:forKey:和-valueForKey:方法来存取属性。但是CAAnimation有一个不同的性能：它更像一个NSDictionary，可以让你随意设置键值对，即使和你使用的动画类所声明的属性并不匹配
+
+	[animation setValue:handView forKey:@"handView"];
+
+	- (void)animationDidStop:(CABasicAnimation *)anim finished:(BOOL)flag
+	{
+	    //set final position for hand view
+	    UIView *handView = [anim valueForKey:@"handView"];
+	    handView.layer.transform = [anim.toValue CATransform3DValue];
+	}
 
 
+	不幸的是，即使做了这些，还是有个问题，清单8.4在模拟器上运行的很好，但当真正跑在iOS设备上时，我们发现在-animationDidStop:finished:委托方法调用之前，指针会迅速返回到原始值，这个清单8.3图层颜色发生的情况一样。
 
+	问题在于回调方法在动画完成之前已经被调用了，但不能保证这发生在属性动画返回初始状态之前。这同时也很好地说明了为什么要在真实的设备上测试动画代码，而不仅仅是模拟器。
 
+	我们可以用一个fillMode属性来解决这个问题，下一章会详细说明，这里知道在动画之前设置它比在动画结束之后更新属性更加方便
 
+8.1.2	关键帧动画
 
+	关键帧起源于传动动画，意思是指主导的动画在显著改变发生时重绘当前帧（也就是关键帧），每帧之间剩下的绘制（可以通过关键帧推算出）将由熟练的艺术家来完成。CAKeyframeAnimation也是同样的道理：你提供了显著的帧，然后Core Animation在每帧之间进行插入
 
+	UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
+    	[bezierPath moveToPoint:CGPointMake(0, 150)];
+    	[bezierPath addCurveToPoint:CGPointMake(300, 150) controlPoint1:CGPointMake(75, 0) controlPoint2:CGPointMake(225, 300)];
 
+	CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
+    	animation.keyPath = @"position";
+    	animation.duration = 4.0;
+    	animation.path = bezierPath.CGPath;
+    	[shipLayer addAnimation:animation forKey:nil];
 
+	运行示例，你会发现飞船的动画有些不太真实，这是因为当它运动的时候永远指向右边，而不是指向曲线切线的方向。你可以调整它的affineTransform来对运动方向做动画，但很可能和其它的动画冲突。
 
+	幸运的是，苹果预见到了这点，并且给CAKeyFrameAnimation添加了一个rotationMode的属性。设置它为常量kCAAnimationRotateAuto（清单8.7），图层将会根据曲线的切线自动旋转（图8.2）
 
+8.1.3 	虚拟属性
 
+	CABasicAnimation *animation = [CABasicAnimation animation];
+    	animation.keyPath = @"transform.rotation";
+    	animation.duration = 2.0;
+    	animation.byValue = @(M_PI * 2);
+    	[shipLayer addAnimation:animation forKey:nil];
 
+    	结果运行的特别好，用transform.rotation而不是transform做动画的好处如下：
 
+	a. 我们可以不通过关键帧一步旋转多于180度的动画。
+	b. 可以用相对值而不是绝对值旋转（设置byValue而不是toValue）。
+	c. 可以不用创建CATransform3D，而是使用一个简单的数值来指定角度。
+	d. 不会和transform.position或者transform.scale冲突（同样是使用关键路径来做独立的动画属性）。
+	
+	transform.rotation属性有一个奇怪的问题是它其实并不存在。
+	这是因为CATransform3D并不是一个对象，它实际上是一个结构体，也没有符合KVC相关属性，transform.rotation实际上是一个CALayer用于处理动画变换的虚拟属性
 
+8.2 	动画组
 
-
-
-
-
-
+	
 
 
 
