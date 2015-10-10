@@ -5,6 +5,40 @@ date:   2015-09-08-12:34:55
 categories: jekyll update
 ---
 
+1.1 图层与视图
+
+	CALayer类在概念上和UIView类似，同样也是一些被层级关系树管理的矩形块，同样也可以包含一些内容（像图片，文本或者背景色），管理子图层的位置。它们有一些方法和属性用来做动画和变换。和UIView最大的不同是CALayer不处理用户的交互
+
+	但是为什么iOS要基于UIView和CALayer提供两个平行的层级关系呢？为什么不用一个简单的层级来处理所有事情呢？原因在于要做职责分离，这样也能避免很多重复代码。在iOS和Mac OS两个平台上，事件和用户交互有很多地方的不同，基于多点触控的用户界面和基于鼠标键盘有着本质的区别，这就是为什么iOS有UIKit和UIView，但是Mac OS有AppKit和NSView的原因。他们功能上很相似，但是在实现上有着显著的区别。
+
+	实际上，这里并不是两个层级关系，而是四个，每一个都扮演不同的角色，除了视图层级和图层树之外，还存在呈现树和渲染树.
+
+1.2 图层的能力
+
+	我们已经证实了图层不能像视图那样处理触摸事件，那么他能做哪些视图不能做的呢？这里有一些UIView没有暴露出来的CALayer的功能：
+
+	a. 阴影，圆角，带颜色的边框
+	b. 3D变换
+	c. 非矩形范围
+	透明遮罩
+	多级非线性动画
+
+1.3 使用图层
+
+2.1 contents 属性
+
+2.2 自定义绘制
+
+3.1 布局
+
+3.2 锚点
+
+3.3 坐标系
+
+3.4 Hit Testing
+
+3.5 自动布局
+
 4.1 圆角 conrnerRadius
 
 	CALayer有一个叫做conrnerRadius的属性控制着图层角的曲率。它是一个浮点数，默认为0（为0的时候就是直角），但是你可以把它设置成任意值。默认情况下，这个曲率值只影响背景颜色而不影响背景图片或是子图层。不过，如果把masksToBounds设置成YES的话，图层里面的所有东西都会被截取
@@ -186,7 +220,7 @@ categories: jekyll update
 	CATransform3DMakeTranslation(Gloat tx, CGFloat ty, CGFloat tz)
 
 	CATransform3D transform = CATransform3DMakeRotation(M_PI_4, 0, 1, 0);
-    self.layerView.layer.transform = transform;
+    	self.layerView.layer.transform = transform;
 
 5.2.1 透视投影 (生成虚像)
 
@@ -196,27 +230,28 @@ categories: jekyll update
 
 	因为视角相机实际上并不存在，所以可以根据屏幕上的显示效果自由决定它的防止的位置。通常500-1000就已经很好了，但对于特定的图层有时候更小后者更大的值会看起来更舒服，减少距离的值会增强透视效果，所以一个非常微小的值会让它看起来更加失真，然而一个非常大的值会让它基本失去透视效果
 
-    CATransform3D transform = CATransform3DIdentity;
-    transform.m34 = - 1.0 / 500.0;
-    transform = CATransform3DRotate(transform, M_PI_4, 0, 1, 0);
-    self.layerView.layer.transform = transform;
+	CATransform3D transform = CATransform3DIdentity;
+	transform.m34 = - 1.0 / 500.0;
+	transform = CATransform3DRotate(transform, M_PI_4, 0, 1, 0);
+	self.layerView.layer.transform = transform;
 
 
 5.2.2 组透视 sublayerTransform
 
 	CALayer有一个属性叫做sublayerTransform。它也是CATransform3D类型，但和对一个图层的变换不同，它影响到所有的子图层。这意味着你可以一次性对包含这些图层的容器做变换，于是所有的子图层都自动继承了这个变换方法
 
-    CATransform3D perspective = CATransform3DIdentity;
-    perspective.m34 = - 1.0 / 500.0;
-    self.containerView.layer.sublayerTransform = perspective;
+	CATransform3D perspective = CATransform3DIdentity;
+	perspective.m34 = - 1.0 / 500.0;
+	self.containerView.layer.sublayerTransform = perspective;
 
-    //rotate layerView1 by 45 degrees along the Y axis
-    CATransform3D transform1 = CATransform3DMakeRotation(M_PI_4, 0, 1, 0);
-    self.layerView1.layer.transform = transform1;
+	//rotate layerView1 by 45 degrees along the Y axis
+	CATransform3D transform1 = CATransform3DMakeRotation(M_PI_4, 0, 1, 0);
+	self.layerView1.layer.transform = transform1;
 
-    //rotate layerView2 by 45 degrees along the Y axis
-    CATransform3D transform2 = CATransform3DMakeRotation(-M_PI_4, 0, 1, 0);
-    self.layerView2.layer.transform = transform2;
+	//rotate layerView2 by 45 degrees along the Y axis
+	CATransform3D transform2 = CATransform3DMakeRotation(-M_PI_4, 0, 1, 0);
+	self.layerView2.layer.transform = transform2;
+
 
 5.2.3 背面 doubleSided
 
@@ -699,7 +734,7 @@ categories: jekyll update
 
 	在一个真正的OpenGL应用中，我们可能会用NSTimer或CADisplayLink周期性地每秒钟调用-drawRrame方法60次，同时会将几何图形生成和绘制分开以便不会每次都重新生成三角形的顶点（这样也可以让我们绘制其他的一些东西而不是一个三角形而已），不过上面这个例子已经足够演示了绘图原则了
 
-6.10 AVPlayerLayer 视频播放图层
+6.10    AVPlayerLayer 视频播放图层
 
 	最后一个图层类型是AVPlayerLayer。尽管它不是Core Animation框架的一部分（AV前缀看上去像），AVPlayerLayer是有别的框架（AVFoundation）提供的，它和Core Animation紧密地结合在一起，提供了一个CALayer子类来显示自定义的内容类型
 
@@ -734,7 +769,7 @@ categories: jekyll update
 	当然，因为AVPlayerLayer是CALayer的子类，它继承了父类的所有特性。我们并不会受限于要在一个矩形中播放视频；清单6.16演示了在3D，圆角，有色边框，蒙板，阴影等效果
 
 
-7.3  图层行为
+7.3     图层行为
 
 	试着直接对UIView关联的图层做动画而不是一个单独的图层,图层颜色瞬间切换到新的值，而不是之前平滑过渡的动画。发生了什么呢？隐式动画好像被UIView关联图层给禁用了.
 
@@ -790,7 +825,7 @@ categories: jekyll update
 	self.colorLayer.actions = @{@"backgroundColor": transition};
 
 	
-7.4 呈现与模型 presentationLayer, modelLayer
+7.4 	呈现与模型 presentationLayer, modelLayer
 
 	在iOS中，屏幕每秒钟重绘60次。如果动画时长比60分之一秒要长，Core Animation就需要在设置一次新值和新值生效之间，对屏幕上的图层进行重新组织。这意味着CALayer除了“真实”值（就是你设置的值）之外，必须要知道当前显示在屏幕上的属性值的记录。
 
@@ -890,8 +925,72 @@ categories: jekyll update
 	这是因为CATransform3D并不是一个对象，它实际上是一个结构体，也没有符合KVC相关属性，transform.rotation实际上是一个CALayer用于处理动画变换的虚拟属性
 
 8.2 	动画组
-
 	
+	CABasicAnimation和CAKeyframeAnimation仅仅作用于单独的属性，而CAAnimationGroup可以把这些动画组合在一起。CAAnimationGroup是另一个继承于CAAnimation的子类，它添加了一个animations数组的属性，用来组合别的动画。我们把清单8.6那种关键帧动画和调整图层背景色的基础动画组合起来
+
+	CAKeyframeAnimation *animation1 = [CAKeyframeAnimation animation];
+	animation1.keyPath = @"position";
+	animation1.path = bezierPath.CGPath;
+	animation1.rotationMode = kCAAnimationRotateAuto;
+	
+	CABasicAnimation *animation2 = [CABasicAnimation animation];
+	animation2.keyPath = @"backgroundColor";
+	animation2.toValue = (__bridge id)[UIColor redColor].CGColor;
+	
+	CAAnimationGroup *groupAnimation = [CAAnimationGroup animation];
+	groupAnimation.animations = @[animation1, animation2]; 
+	groupAnimation.duration = 4.0;
+	
+	[colorLayer addAnimation:groupAnimation forKey:nil];
+
+8.3 	过度
+
+	有时候对于iOS应用程序来说，希望能通过属性动画来对比较难做动画的布局进行一些改变。比如交换一段文本和图片，或者用一段网格视图来替换，等等。属性动画只对图层的可动画属性起作用，所以如果要改变一个不能动画的属性（比如图片），或者从层级关系中添加或者移除图层，属性动画将不起作用。
+
+	于是就有了过渡的概念.
+
+	CATransition *transition = [CATransition animation];
+	transition.type = kCATransitionFade;
+	transition.subtype = kCATransitionFromLeft;
+	[self.imageView.layer addAnimation:transition forKey:nil];
+
+
+8.3.1   隐式过度
+
+	CATransision可以对图层任何变化平滑过渡的事实使得它成为那些不好做动画的属性图层行为的理想候选。苹果当然意识到了这点，并且当设置了CALayer的content属性的时候，CATransition的确是默认的行为。但是对于视图关联的图层，或者是其他隐式动画的行为，这个特性依然是被禁用的，但是对于你自己创建的图层，这意味着对图层contents图片做的改动都会自动附上淡入淡出的动画
+
+8.3.2   对图层树的动画
+
+	CATransition并不作用于指定的图层属性，这就是说你可以在即使不能准确得知改变了什么的情况下对图层做动画，例如，在不知道UITableView哪一行被添加或者删除的情况下，直接就可以平滑地刷新它，或者在不知道UIViewController内部的视图层级的情况下对两个不同的实例做过渡动画
+
+	这里用到了一个小诡计，要确保CATransition添加到的图层在过渡动画发生时不会在树状结构中被移除，否则CATransition将会和图层一起被移除。一般来说，你只需要将动画添加到被影响图层的superlayer.
+
+	- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
+	{
+	    ￼//set up crossfade transition
+	    CATransition *transition = [CATransition animation];
+	    transition.type = kCATransitionFade;
+	    //apply transition to tab bar controller's view
+	    [self.tabBarController.view.layer addAnimation:transition forKey:nil];
+	}
+
+9.1.1 	持续和重复
+
+	我们用了autoreverses来使门在打开后自动关闭，在这里我们把repeatDuration设置为INFINITY，于是动画无限循环播放，设置repeatCount为INFINITY也有同样的效果。注意repeatCount和repeatDuration可能会相互冲突，所以你只要对其中一个指定非零值。对两个属性都设置非0值的行为没有被定义
+
+	CATransform3D perspective = CATransform3DIdentity;
+	perspective.m34 = -1.0 / 500.0;
+	self.containerView.layer.sublayerTransform = perspective;
+
+	CABasicAnimation *animation = [CABasicAnimation animation];
+	animation.keyPath = @"transform.rotation.y";
+	animation.toValue = @(-M_PI_2);
+	animation.duration = 2.0;
+	animation.repeatDuration = INFINITY;
+	animation.autoreverses = YES;
+
+	[doorLayer addAnimation:animation forKey:nil];
+
 
 
 
