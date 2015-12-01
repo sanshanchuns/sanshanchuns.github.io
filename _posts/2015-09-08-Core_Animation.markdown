@@ -25,7 +25,46 @@ categories: jekyll update
 
 1.3 使用图层
 
-2.1 contents 属性
+2.1 寄存图 contents 属性
+
+	a. CALayer 有一个属性叫做contents，这个属性的类型被定义为id，意味着它可以是任何类型的对象。在这种情况下，你 可以给contents属性赋任何值，你的app仍然能够编译通过。但是，在实践中，如果你给contents赋的不是CGImage，那么你得到的图层将是空白的
+
+		UIImage *image = [UIImage imageNamed:@"Snowman.png"];
+  		self.layerView.layer.contents = (__bridge id)image.CGImage;
+
+  	contentGravity 属性, 内容如何适配父容器
+
+  		在使用UIImageView的时候遇到过同样的问题，解决方法就是把contentMode属性设置成更合适的值，像这样：
+		view.contentMode = UIViewContentModeScaleAspectFit;
+
+	CALayer与contentMode对应的属性叫做contentsGravity，但是它是一个NSString类型，而不是像对应的UIKit部分，那里面的值是枚举。contentsGravity可选的常量值有以下一些
+
+		kCAGravityCenter
+		kCAGravityTop
+		kCAGravityBottom
+		kCAGravityLeft
+		kCAGravityRight
+		kCAGravityTopLeft
+		kCAGravityTopRight
+		kCAGravityBottomLeft
+		kCAGravityBottomRight
+		kCAGravityResize
+		kCAGravityResizeAspect
+		kCAGravityResizeAspectFill
+
+	比如我们可以这样设置 layer, 如此图片就不会被拉伸
+	self.layerView.layer.contentsGravity = kCAGravityResizeAspect;
+
+
+	contentsScale Retina 屏幕机制
+	
+	contentsScale属性定义了寄宿图的像素尺寸和视图大小的比例，默认情况下它是一个值为1.0的浮点数.UIView有一个类似功能但是非常少用到的contentScaleFactor属性.
+
+	如果contentsScale设置为1.0，将会以每个点1个像素绘制图片，如果设置为2.0, 则会以每个点2个像素绘制图片, 这就是我们熟知的Retina屏幕。
+
+	当用代码的方式来处理寄宿图的时候，一定要记住要手动的设置图层的contentsScale属性，否则，你的图片在Retina设备上就显示得不正确啦。代码如下：
+
+		layer.contentsScale = [UIScreen mainScreen].scale;
 
 2.2 自定义绘制
 
@@ -847,17 +886,19 @@ categories: jekyll update
 
 	- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 	{
-	    //get the touch point
+
 	    CGPoint point = [[touches anyObject] locationInView:self.view];
-	    //check if we've tapped the moving layer
+	    
 	    if ([self.colorLayer.presentationLayer hitTest:point]) {  //动画变换过程中任一时刻的层
-	        //randomize the layer background color
+	        
 	        CGFloat red = arc4random() / (CGFloat)INT_MAX;
 	        CGFloat green = arc4random() / (CGFloat)INT_MAX;
 	        CGFloat blue = arc4random() / (CGFloat)INT_MAX;
 	        self.colorLayer.backgroundColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0].CGColor;
+
 	    } else {
-	        //otherwise (slowly) move the layer to new position
+	        
+	    	//非隐式动画
 	        [CATransaction begin];
 	        [CATransaction setAnimationDuration:4.0];
 	        self.colorLayer.position = point;
@@ -991,7 +1032,20 @@ categories: jekyll update
 
 	[doorLayer addAnimation:animation forKey:nil];
 
+9.1.2   fillMode  / 动画完成后的填充模式
 
+	kCAFillModeForwards 
+	kCAFillModeBackwards 
+	kCAFillModeBoth 
+	kCAFillModeRemoved (默认是移除)
+
+	默认是kCAFillModeRemoved，当动画不再播放的时候就显示图层模型指定的值剩下的三种类型向前，向后或者即向前又向后去填充动画状态，使得动画在开始前或者结束后仍然保持开始和结束那一刻的值
+
+	这就对避免在动画结束的时候急速返回提供另一种方案（见第八章）。但是记住了，当用它来解决这个问题的时候，需要把removeOnCompletion设置为NO，另外需要给动画添加一个非空的键，于是可以在不需要动画的时候把它从图层上移除.
+
+9.3 手动动画
+
+	
 
 
 
