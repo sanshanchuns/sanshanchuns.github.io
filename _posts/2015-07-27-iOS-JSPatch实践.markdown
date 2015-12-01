@@ -121,7 +121,32 @@ categories: jekyll update
         
 	}))
 
+#### 10. 重写参考
+	
+	defineClass('LoginViewController : BaseNaviBarViewController', {
+       		viewDidLoad: function (){
+           	self.ORIGviewDidLoad()
+           	self.initRegisterButton()
+       	},
+       	initRegisterButton: function (){
+           	var btn = require('UIButton').buttonWithType(0)
+           	btn.titleLabel().setFont(require('UIFont').systemFontOfSize(12))
+           	btn.setTitle_forState("注册", 0)
+           	btn.setTitleColor_forState(UIColor.colorWithWhite_alpha(0.9, 1.0), 0)
+           	btn.addTarget_action_forControlEvents(self, "registerButtonAction", 1<<6)
+           	btn.setFrame({x:9, y:70, width:kScreenWidth - 18, height:42})
+           	btn.setBackgroundColor(UIColor.clearColor())
+           	self.footerView().addSubview(btn)
+       	},
+       	registerButtonAction: function (){
+           	var url = "https://hlcs.caifupai.com/lcsh5/dist/pages/online/loginReg.html?s=lcsapp&s2=ios"
+           	var isExsit = require('UIApplication').sharedApplication().canOpenURL(require('NSURL').URLWithString(url))
+           	if (isExsit) {
+               		UIApplication.sharedApplication().openURL(NSURL.URLWithString(url))
+           	}
 
+       	},
+   })
 
 
 

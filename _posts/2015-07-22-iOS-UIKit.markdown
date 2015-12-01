@@ -287,6 +287,9 @@ categories: jekyll update
 
 	UIResponder 作为响应者, 具备基本的响应方法(一般用来定制一些响应行为)
 
+#### 9. iOS 7: Custom Transitions
+	
+
 [jekyll]:      http://jekyllrb.com
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-help]: https://github.com/jekyll/jekyll-help
