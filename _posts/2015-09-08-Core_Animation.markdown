@@ -779,31 +779,31 @@ categories: jekyll update
 
 	AVPlayerLayer是用来在iOS上播放视频的。他是高级接口例如MPMoivePlayer的底层实现，提供了显示视频的底层控制。AVPlayerLayer的使用相当简单：你可以用+playerLayerWithPlayer:方法创建一个已经绑定了视频播放器的图层，或者你可以先创建一个图层，然后用player属性绑定一个AVPlayer实例。
 
-	//获取媒体资源
-	NSURL *URL = [[NSBundle mainBundle] URLForResource:@"Ship" withExtension:@"mp4"];
+		//获取媒体资源
+		NSURL *URL = [[NSBundle mainBundle] URLForResource:@"Ship" withExtension:@"mp4"];
 
-	//创建播放器和播放图层
-	AVPlayer *player = [AVPlayer playerWithURL:URL];
-	AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+		//创建播放器和播放图层
+		AVPlayer *player = [AVPlayer playerWithURL:URL];
+		AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
 
-	//设置播放图层的大小
-	playerLayer.frame = self.containerView.bounds;
-	[self.containerView.layer addSublayer:playerLayer];
+		//设置播放图层的大小
+		playerLayer.frame = self.containerView.bounds;
+		[self.containerView.layer addSublayer:playerLayer];
 
-	//进行一些变换
-	CATransform3D transform = CATransform3DIdentity;
-	transform.m34 = -1.0 / 500.0;
-	transform = CATransform3DRotate(transform, M_PI_4, 1, 1, 0);
-	playerLayer.transform = transform;
-	￼
-	//添加圆角和边框
-	playerLayer.masksToBounds = YES;
-	playerLayer.cornerRadius = 20.0;
-	playerLayer.borderColor = [UIColor redColor].CGColor;
-	playerLayer.borderWidth = 5.0;
+		//进行一些变换
+		CATransform3D transform = CATransform3DIdentity;
+		transform.m34 = -1.0 / 500.0;
+		transform = CATransform3DRotate(transform, M_PI_4, 1, 1, 0);
+		playerLayer.transform = transform;
+		￼
+		//添加圆角和边框
+		playerLayer.masksToBounds = YES;
+		playerLayer.cornerRadius = 20.0;
+		playerLayer.borderColor = [UIColor redColor].CGColor;
+		playerLayer.borderWidth = 5.0;
 
-	//播放视频
-	[player play];
+		//播放视频
+		[player play];
 
 	当然，因为AVPlayerLayer是CALayer的子类，它继承了父类的所有特性。我们并不会受限于要在一个矩形中播放视频；清单6.16演示了在3D，圆角，有色边框，蒙板，阴影等效果
 
@@ -818,29 +818,29 @@ categories: jekyll update
 
 	我们把改变属性时CALayer自动应用的动画称作行为，当CALayer的属性被修改时候，它会调用-actionForKey: 方法，传递属性的名称.剩下的操作都在 CALayer 的头文件中有详细的说明,实质上是如下几步：
 
-	a. 图层首先检测它是否有委托，并且是否实现CALayerDelegate协议指定的-actionForLayer:forKey方法。如果有，直接调用并返回结果。
-	b. 如果没有委托，或者委托没有实现-actionForLayer:forKey方法，图层接着检查包含属性名称对应行为映射的actions字典。
-	c. 如果actions字典没有包含对应的属性，那么图层接着在它的style字典接着搜索属性名。
-	d. 最后，如果在style里面也找不到对应的行为，那么图层将会直接调用定义了每个属性的标准行为的-defaultActionForKey:方法。
+		a. 图层首先检测它是否有委托，并且是否实现CALayerDelegate协议指定的-actionForLayer:forKey方法。如果有，直接调用并返回结果。
+		b. 如果没有委托，或者委托没有实现-actionForLayer:forKey方法，图层接着检查包含属性名称对应行为映射的actions字典。
+		c. 如果actions字典没有包含对应的属性，那么图层接着在它的style字典接着搜索属性名。
+		d. 最后，如果在style里面也找不到对应的行为，那么图层将会直接调用定义了每个属性的标准行为的-defaultActionForKey:方法。
 
 	于是这就解释了UIKit是如何禁用隐式动画的：每个UIView对它关联的图层都扮演了一个委托，并且提供了-actionForLayer:forKey 的实现方法
 	当不在一个动画块的实现中，UIView对所有图层行为返回nil，但是在动画block范围之内，它就返回了一个非空值。
 
 	我们可以用一个demo做个简单的实验
 
-	- (void)viewDidLoad
-	{
-	    [super viewDidLoad];
-	    
-	    NSLog(@"Outside: %@", [self.layerView actionForLayer:self.layerView.layer forKey:@"backgroundColor"]);
+		- (void)viewDidLoad
+		{
+		    [super viewDidLoad];
+		    
+		    NSLog(@"Outside: %@", [self.layerView actionForLayer:self.layerView.layer forKey:@"backgroundColor"]);
 
-	    [UIView beginAnimations:nil context:nil];
-	    NSLog(@"Inside: %@", [self.layerView actionForLayer:self.layerView.layer forKey:@"backgroundColor"]);
-	    [UIView commitAnimations];
-	}
+		    [UIView beginAnimations:nil context:nil];
+		    NSLog(@"Inside: %@", [self.layerView actionForLayer:self.layerView.layer forKey:@"backgroundColor"]);
+		    [UIView commitAnimations];
+		}
 
-	$ LayerTest[21215:c07] Outside: <null>
-	$ LayerTest[21215:c07] Inside: <CABasicAnimation: 0x757f090>
+		$ LayerTest[21215:c07] Outside: <null>
+		$ LayerTest[21215:c07] Inside: <CABasicAnimation: 0x757f090>
 
 	于是我们可以预言，当属性在动画块之外发生改变，UIView直接通过返回nil来禁用隐式动画。
 	但如果在动画块范围之内，根据动画具体类型返回相应的属性，在这个例子就是CABasicAnimation（第八章“显式动画”将会提到）。
@@ -848,7 +848,7 @@ categories: jekyll update
 	当然返回nil并不是禁用隐式动画唯一的办法，CATransacition有个方法叫做+setDisableActions:，可以用来对所有属性打开或者关闭隐式动画。
 	如果在清单7.2的[CATransaction begin]之后添加下面的代码，同样也会阻止动画的发生：
 
-	[CATransaction setDisableActions:YES];
+		[CATransaction setDisableActions:YES];
 
 	总结一下，我们知道了如下几点
 
@@ -857,11 +857,11 @@ categories: jekyll update
 	
 	对于单独存在的图层，我们可以通过实现图层的-actionForLayer:forKey:委托方法，或者提供一个actions字典来控制隐式动画。
 
-	//add a custom action
-	CATransition *transition = [CATransition animation];
-	transition.type = kCATransitionPush;
-	transition.subtype = kCATransitionFromLeft;
-	self.colorLayer.actions = @{@"backgroundColor": transition};
+		//add a custom action
+		CATransition *transition = [CATransition animation];
+		transition.type = kCATransitionPush;
+		transition.subtype = kCATransitionFromLeft;
+		self.colorLayer.actions = @{@"backgroundColor": transition};
 
 	
 7.4 	呈现与模型 presentationLayer, modelLayer
@@ -884,6 +884,7 @@ categories: jekyll update
 	这时候你就需要点击图层将要移动到的位置而不是图层本身来响应点击（这就是为什么用呈现图层来响应交互的原因
 
 
+<<<<<<< HEAD
 	- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 	{
 
@@ -905,6 +906,27 @@ categories: jekyll update
 	        [CATransaction commit];
 	    }
 	}
+=======
+		- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+		{
+		    //get the touch point
+		    CGPoint point = [[touches anyObject] locationInView:self.view];
+		    //check if we've tapped the moving layer
+		    if ([self.colorLayer.presentationLayer hitTest:point]) {  //动画变换过程中任一时刻的层
+		        //randomize the layer background color
+		        CGFloat red = arc4random() / (CGFloat)INT_MAX;
+		        CGFloat green = arc4random() / (CGFloat)INT_MAX;
+		        CGFloat blue = arc4random() / (CGFloat)INT_MAX;
+		        self.colorLayer.backgroundColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0].CGColor;
+		    } else {
+		        //otherwise (slowly) move the layer to new position
+		        [CATransaction begin];
+		        [CATransaction setAnimationDuration:4.0];
+		        self.colorLayer.position = point;
+		        [CATransaction commit];
+		    }
+		}
+>>>>>>> 944cc91585cec91a9dab589c4ce21f2bb0cf0fee
 
 
 8.1 属性动画
@@ -913,14 +935,14 @@ categories: jekyll update
 
 	幸运的是，还有一种更加简单的方法。像所有的NSObject子类一样，CAAnimation实现了KVC（键-值-编码）协议，于是你可以用-setValue:forKey:和-valueForKey:方法来存取属性。但是CAAnimation有一个不同的性能：它更像一个NSDictionary，可以让你随意设置键值对，即使和你使用的动画类所声明的属性并不匹配
 
-	[animation setValue:handView forKey:@"handView"];
+		[animation setValue:handView forKey:@"handView"];
 
-	- (void)animationDidStop:(CABasicAnimation *)anim finished:(BOOL)flag
-	{
-	    //set final position for hand view
-	    UIView *handView = [anim valueForKey:@"handView"];
-	    handView.layer.transform = [anim.toValue CATransform3DValue];
-	}
+		- (void)animationDidStop:(CABasicAnimation *)anim finished:(BOOL)flag
+		{
+		    //set final position for hand view
+		    UIView *handView = [anim valueForKey:@"handView"];
+		    handView.layer.transform = [anim.toValue CATransform3DValue];
+		}
 
 
 	不幸的是，即使做了这些，还是有个问题，清单8.4在模拟器上运行的很好，但当真正跑在iOS设备上时，我们发现在-animationDidStop:finished:委托方法调用之前，指针会迅速返回到原始值，这个清单8.3图层颜色发生的情况一样。
@@ -933,15 +955,15 @@ categories: jekyll update
 
 	关键帧起源于传动动画，意思是指主导的动画在显著改变发生时重绘当前帧（也就是关键帧），每帧之间剩下的绘制（可以通过关键帧推算出）将由熟练的艺术家来完成。CAKeyframeAnimation也是同样的道理：你提供了显著的帧，然后Core Animation在每帧之间进行插入
 
-	UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
-    	[bezierPath moveToPoint:CGPointMake(0, 150)];
-    	[bezierPath addCurveToPoint:CGPointMake(300, 150) controlPoint1:CGPointMake(75, 0) controlPoint2:CGPointMake(225, 300)];
+		UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
+	    	[bezierPath moveToPoint:CGPointMake(0, 150)];
+	    	[bezierPath addCurveToPoint:CGPointMake(300, 150) controlPoint1:CGPointMake(75, 0) controlPoint2:CGPointMake(225, 300)];
 
-	CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
-    	animation.keyPath = @"position";
-    	animation.duration = 4.0;
-    	animation.path = bezierPath.CGPath;
-    	[shipLayer addAnimation:animation forKey:nil];
+		CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
+	    	animation.keyPath = @"position";
+	    	animation.duration = 4.0;
+	    	animation.path = bezierPath.CGPath;
+	    	[shipLayer addAnimation:animation forKey:nil];
 
 	运行示例，你会发现飞船的动画有些不太真实，这是因为当它运动的时候永远指向右边，而不是指向曲线切线的方向。你可以调整它的affineTransform来对运动方向做动画，但很可能和其它的动画冲突。
 
@@ -949,18 +971,18 @@ categories: jekyll update
 
 8.1.3 	虚拟属性
 
-	CABasicAnimation *animation = [CABasicAnimation animation];
-    	animation.keyPath = @"transform.rotation";
-    	animation.duration = 2.0;
-    	animation.byValue = @(M_PI * 2);
-    	[shipLayer addAnimation:animation forKey:nil];
+		CABasicAnimation *animation = [CABasicAnimation animation];
+	    	animation.keyPath = @"transform.rotation";
+	    	animation.duration = 2.0;
+	    	animation.byValue = @(M_PI * 2);
+	    	[shipLayer addAnimation:animation forKey:nil];
 
     	结果运行的特别好，用transform.rotation而不是transform做动画的好处如下：
 
-	a. 我们可以不通过关键帧一步旋转多于180度的动画。
-	b. 可以用相对值而不是绝对值旋转（设置byValue而不是toValue）。
-	c. 可以不用创建CATransform3D，而是使用一个简单的数值来指定角度。
-	d. 不会和transform.position或者transform.scale冲突（同样是使用关键路径来做独立的动画属性）。
+		a. 我们可以不通过关键帧一步旋转多于180度的动画。
+		b. 可以用相对值而不是绝对值旋转（设置byValue而不是toValue）。
+		c. 可以不用创建CATransform3D，而是使用一个简单的数值来指定角度。
+		d. 不会和transform.position或者transform.scale冲突（同样是使用关键路径来做独立的动画属性）。
 	
 	transform.rotation属性有一个奇怪的问题是它其实并不存在。
 	这是因为CATransform3D并不是一个对象，它实际上是一个结构体，也没有符合KVC相关属性，transform.rotation实际上是一个CALayer用于处理动画变换的虚拟属性
@@ -969,20 +991,20 @@ categories: jekyll update
 	
 	CABasicAnimation和CAKeyframeAnimation仅仅作用于单独的属性，而CAAnimationGroup可以把这些动画组合在一起。CAAnimationGroup是另一个继承于CAAnimation的子类，它添加了一个animations数组的属性，用来组合别的动画。我们把清单8.6那种关键帧动画和调整图层背景色的基础动画组合起来
 
-	CAKeyframeAnimation *animation1 = [CAKeyframeAnimation animation];
-	animation1.keyPath = @"position";
-	animation1.path = bezierPath.CGPath;
-	animation1.rotationMode = kCAAnimationRotateAuto;
-	
-	CABasicAnimation *animation2 = [CABasicAnimation animation];
-	animation2.keyPath = @"backgroundColor";
-	animation2.toValue = (__bridge id)[UIColor redColor].CGColor;
-	
-	CAAnimationGroup *groupAnimation = [CAAnimationGroup animation];
-	groupAnimation.animations = @[animation1, animation2]; 
-	groupAnimation.duration = 4.0;
-	
-	[colorLayer addAnimation:groupAnimation forKey:nil];
+		CAKeyframeAnimation *animation1 = [CAKeyframeAnimation animation];
+		animation1.keyPath = @"position";
+		animation1.path = bezierPath.CGPath;
+		animation1.rotationMode = kCAAnimationRotateAuto;
+		
+		CABasicAnimation *animation2 = [CABasicAnimation animation];
+		animation2.keyPath = @"backgroundColor";
+		animation2.toValue = (__bridge id)[UIColor redColor].CGColor;
+		
+		CAAnimationGroup *groupAnimation = [CAAnimationGroup animation];
+		groupAnimation.animations = @[animation1, animation2]; 
+		groupAnimation.duration = 4.0;
+		
+		[colorLayer addAnimation:groupAnimation forKey:nil];
 
 8.3 	过度
 
@@ -990,10 +1012,10 @@ categories: jekyll update
 
 	于是就有了过渡的概念.
 
-	CATransition *transition = [CATransition animation];
-	transition.type = kCATransitionFade;
-	transition.subtype = kCATransitionFromLeft;
-	[self.imageView.layer addAnimation:transition forKey:nil];
+		CATransition *transition = [CATransition animation];
+		transition.type = kCATransitionFade;
+		transition.subtype = kCATransitionFromLeft;
+		[self.imageView.layer addAnimation:transition forKey:nil];
 
 
 8.3.1   隐式过度
@@ -1006,31 +1028,195 @@ categories: jekyll update
 
 	这里用到了一个小诡计，要确保CATransition添加到的图层在过渡动画发生时不会在树状结构中被移除，否则CATransition将会和图层一起被移除。一般来说，你只需要将动画添加到被影响图层的superlayer.
 
-	- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
-	{
-	    ￼//set up crossfade transition
-	    CATransition *transition = [CATransition animation];
-	    transition.type = kCATransitionFade;
-	    //apply transition to tab bar controller's view
-	    [self.tabBarController.view.layer addAnimation:transition forKey:nil];
-	}
+		- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
+		{
+		    ￼//set up crossfade transition
+		    CATransition *transition = [CATransition animation];
+		    transition.type = kCATransitionFade;
+		    //apply transition to tab bar controller's view
+		    [self.tabBarController.view.layer addAnimation:transition forKey:nil];
+		}
 
 9.1.1 	持续和重复
 
 	我们用了autoreverses来使门在打开后自动关闭，在这里我们把repeatDuration设置为INFINITY，于是动画无限循环播放，设置repeatCount为INFINITY也有同样的效果。注意repeatCount和repeatDuration可能会相互冲突，所以你只要对其中一个指定非零值。对两个属性都设置非0值的行为没有被定义
 
-	CATransform3D perspective = CATransform3DIdentity;
-	perspective.m34 = -1.0 / 500.0;
-	self.containerView.layer.sublayerTransform = perspective;
+		CATransform3D perspective = CATransform3DIdentity;
+		perspective.m34 = -1.0 / 500.0;
+		self.containerView.layer.sublayerTransform = perspective;
 
-	CABasicAnimation *animation = [CABasicAnimation animation];
-	animation.keyPath = @"transform.rotation.y";
-	animation.toValue = @(-M_PI_2);
-	animation.duration = 2.0;
-	animation.repeatDuration = INFINITY;
-	animation.autoreverses = YES;
+		CABasicAnimation *animation = [CABasicAnimation animation];
+		animation.keyPath = @"transform.rotation.y";
+		animation.toValue = @(-M_PI_2);
+		animation.duration = 2.0;
+		animation.repeatDuration = INFINITY;
+		animation.autoreverses = YES;
 
-	[doorLayer addAnimation:animation forKey:nil];
+		[doorLayer addAnimation:animation forKey:nil];
+
+9.3 	手动动画
+
+	通过设置对应layer的 timeOffset (0,1), speed = 0 属性, 可以实现手动控制动画
+
+		//透视效果只能对父容器实施
+		CATransform3D perspective = CATransform3DIdentity;
+	    	perspective.m34 = -1.0 / 500.0;
+	    	self.containerView.layer.sublayerTransform = perspective;
+
+	    	self.doorLayer.speed = 0.0;  //停止层上的所有动画
+
+		CABasicAnimation *animation = [CABasicAnimation animation];
+		animation.keyPath = @"transform.rotation.y";
+		animation.toValue = @(-M_PI_2);
+		animation.duration = 1.0;
+		[self.doorLayer addAnimation:animation forKey:nil];
+
+
+		- (void)pan:(UIPanGestureRecognizer *)pan
+		{
+		    CGFloat x = [pan translationInView:self.view].x;
+		    x /= 200.0f; //using a reasonable scale factor
+		    
+		    CFTimeInterval timeOffset = self.doorLayer.timeOffset;
+		    timeOffset = MIN(0.999, MAX(0.0, timeOffset - x));
+		    self.doorLayer.timeOffset = timeOffset;
+		    
+		    //reset pan gesture
+		    //初始化sender中的坐标位置。如果不初始化，移动坐标会一直积累起来。
+		    [pan setTranslation:CGPointZero inView:self.view];
+		    
+		}
+
+
+	这其实是个小诡计，也许相对于设置个动画然后每次显示一帧而言，用移动手势来直接设置门的transform会更简单。
+	在这个例子中的确是这样，但是对于比如说关键这这样更加复杂的情况，或者有多个图层的动画组，相对于实时计算每个图层的属性而言，这就显得方便的多了
+
+10.1    动画速度
+
+	CAMediaTimingFunction
+
+	这里有一些方式来创建CAMediaTimingFunction，最简单的方式是调用+timingFunctionWithName:的构造方法。这里传入如下几个常量之一：
+
+		kCAMediaTimingFunctionLinear 
+		kCAMediaTimingFunctionEaseIn 
+		kCAMediaTimingFunctionEaseOut 
+		kCAMediaTimingFunctionEaseInEaseOut
+		kCAMediaTimingFunctionDefault
+
+		[CATransaction begin];
+		[CATransaction setAnimationDuration:1.0];
+		[CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+		self.colorLayer.position = [[touches anyObject] locationInView:self.view];
+		[CATransaction commit];
+
+	UIView的动画缓冲
+
+		[UIView animateWithDuration:1.0 delay:0.0
+	                        options:UIViewAnimationOptionCurveEaseOut
+	                     animations:^{
+	                            //set the position
+	                            self.colorView.center = [[touches anyObject] locationInView:self.view];
+	                        }
+	                     completion:NULL];
+
+
+	缓冲和关键帧动画
+
+	CAKeyframeAnimation有一个NSArray类型的timingFunctions属性，我们可以用它来对每次动画的步骤指定不同的计时函数。但是指定函数的个数一定要等于keyframes数组的元素个数减一，因为它是描述每一帧之间动画速度的函数
+
+		CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
+		animation.keyPath = @"backgroundColor";
+		animation.duration = 2.0;
+		animation.values = @[
+		                 (__bridge id)[UIColor blueColor].CGColor,
+		                 (__bridge id)[UIColor redColor].CGColor,
+		                 (__bridge id)[UIColor greenColor].CGColor,
+		                 (__bridge id)[UIColor blueColor].CGColor ];
+		//add timing function
+		CAMediaTimingFunction *fn = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseIn];
+		animation.timingFunctions = @[fn, fn, fn];
+		//apply animation to layer
+		[self.colorLayer addAnimation:animation forKey:nil];
+
+
+10.2    自定义缓冲函数
+
+		CABasicAnimation *animation = [CABasicAnimation animation];
+	        animation.keyPath = @"transform";
+	        animation.fromValue = [handView.layer.presentationLayer valueForKey:@"transform"];
+	        animation.toValue = [NSValue valueWithCATransform3D:transform];
+	        animation.duration = 0.5;
+	        animation.delegate = self;
+	        animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:1 :0 :0.75 :1];
+	        [handView.layer addAnimation:animation forKey:nil];
+
+	        CATransform3D transform = CATransform3DMakeRotation(angle, 0, 0, 1);
+	        handView.layer.transform = transform;
+
+
+
+11.1    基于定时器的动画
+
+	我们之前提到过iOS按照每秒60次刷新屏幕，然后CAAnimation计算出需要展示的新的帧，然后在每次屏幕更新的时候同步绘制上去，CAAnimation最机智的地方在于每次刷新需要展示的时候去计算插值和缓冲
+
+	NSTimer
+
+	很赞，而且和基于关键帧例子的代码一样很多，但是如果想一次性在屏幕上对很多东西做动画，很明显就会有很多问题
+
+	NSTimer并不是最佳方案，为了理解这点，我们需要确切地知道NSTimer是如何工作的。iOS上的每个线程都管理了一个NSRunloop，字面上看就是通过一个循环来完成一些任务列表。但是对主线程，这些任务包含如下几项：
+
+		a. 处理触摸事件
+		b. 发送和接受网络数据包
+		c. 执行使用gcd的代码
+		d. 处理计时器行为
+		e. 屏幕重绘
+
+	当你设置一个NSTimer，他会被插入到当前任务列表中，然后直到指定时间过去之后才会被执行。但是何时启动定时器并没有一个时间上限，而且它只会在列表中上一个任务完成之后开始执行。这通常会导致有几毫秒的延迟，但是如果上一个任务过了很久才完成就会导致延迟很长一段时间。
+
+	屏幕重绘的频率是一秒钟六十次，但是和定时器行为一样，如果列表中上一个执行了很长时间，它也会延迟。这些延迟都是一个随机值，于是就不能保证定时器精准地一秒钟执行六十次。有时候发生在屏幕重绘之后，这就会使得更新屏幕会有个延迟，看起来就是动画卡壳了。有时候定时器会在屏幕更新的时候执行两次，于是动画看起来就跳动了
+
+	我们可以通过一些途径来优化：
+
+		a. 我们可以用CADisplayLink让更新频率严格控制在每次屏幕刷新之后。
+		b. 基于真实帧的持续时间而不是假设的更新频率来做动画。
+		c. 调整动画计时器的run loop模式，这样就不会被别的事件干扰。
+
+	CADisplayLink
+
+	CADisplayLink是CoreAnimation提供的另一个类似于NSTimer的类，它总是在屏幕完成一次更新之前启动，它的接口设计的和NSTimer很类似，所以它实际上就是一个内置实现的替代，但是和timeInterval以秒为单位不同，CADisplayLink有一个整型的frameInterval属性，指定了间隔多少帧之后才执行。默认值是1，意味着每次屏幕更新之前都会执行一次。但是如果动画的代码执行起来超过了六十分之一秒，你可以指定frameInterval为2，就是说动画每隔一帧执行一次（一秒钟30帧）或者3，也就是一秒钟20次，等等。
+
+	用CADisplayLink而不是NSTimer，会保证帧率足够连续，使得动画看起来更加平滑，但即使CADisplayLink也不能保证每一帧都按计划执行，一些失去控制的离散的任务或者事件（例如资源紧张的后台程序）可能会导致动画偶尔地丢帧。当使用NSTimer的时候，一旦有机会计时器就会开启，但是CADisplayLink却不一样：如果它丢失了帧，就会直接忽略它们，然后在下一次更新的时候接着运行
+
+	计算帧的持续时间
+
+	无论是使用NSTimer还是CADisplayLink，我们仍然需要处理一帧的时间超出了预期的六十分之一秒。由于我们不能够计算出一帧真实的持续时间，所以需要手动测量。我们可以在每帧开始刷新的时候用CACurrentMediaTime()记录当前时间，然后和上一帧记录的时间去比较
+
+
+		self.lastStep = CACurrentMediaTime();
+
+		CFTimeInterval thisStep = CACurrentMediaTime();
+		CFTimeInterval stepDuration = thisStep - self.lastStep;
+		self.lastStep = thisStep;
+		self.timeOffset = MIN(self.timeOffset + stepDuration, self.duration);
+
+	Run Loop 模式
+
+		注意到当创建CADisplayLink的时候，我们需要指定一个run loop和run loop mode，对于run loop来说，我们就使用了主线程的run loop，因为任何用户界面的更新都需要在主线程执行，但是模式的选择就并不那么清楚了，每个添加到run loop的任务都有一个指定了优先级的模式，为了保证用户界面保持平滑，iOS会提供和用户界面相关任务的优先级，而且当UI很活跃的时候的确会暂停一些别的任务。
+
+	一个典型的例子就是当是用UIScrollview滑动的时候，重绘滚动视图的内容会比别的任务优先级更高，所以标准的NSTimer和网络请求就不会启动，一些常见的run loop模式如下：
+
+		a. NSDefaultRunLoopMode - 标准优先级
+		b. NSRunLoopCommonModes - 高优先级
+		c. UITrackingRunLoopMode - 用于UIScrollView和别的控件的动画
+
+
+	在我们的例子中，我们是用了NSDefaultRunLoopMode，但是不能保证动画平滑的运行，所以就可以用NSRunLoopCommonModes来替代。但是要小心，因为如果动画在一个高帧率情况下运行，你会发现一些别的类似于定时器的任务或者类似于滑动的其他iOS动画会暂停，直到动画结束。
+
+	同样可以同时对CADisplayLink指定多个run loop模式, 于是我们可以同时加入 NSDefaultRunLoopMode 和 UITrackingRunLoopMode 来保证它不会被滑动打断, 也不会被其他UIKit控件动画影响性能, 像这样：
+
+		self.timer = [CADisplayLink displayLinkWithTarget:self selector:@selector(step:)];
+		[self.timer addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+		[self.timer addToRunLoop:[NSRunLoop mainRunLoop] forMode:UITrackingRunLoopMode];
 
 9.1.2   fillMode  / 动画完成后的填充模式
 
@@ -1046,6 +1232,15 @@ categories: jekyll update
 9.3 手动动画
 
 	
+	和CADisplayLink类似，NSTimer同样也可以使用不同的run loop模式配置，通过别的函数，而不是+scheduledTimerWithTimeInterval:构造器
+
+		self.timer = [NSTimer timerWithTimeInterval:1/60.0
+		                                 target:self
+		                               selector:@selector(step:)
+		                               userInfo:nil
+		                                repeats:YES];
+		[[NSRunLoop mainRunLoop] addTimer:self.timer
+		                          forMode:NSRunLoopCommonModes];
 
 
 
