@@ -63,7 +63,7 @@ categories: jekyll update
 	I want to know how to make git ignore Hello.class.
 	The problem is that .gitignore ignores just files that weren't tracked before (by git add). Run git rm --cached name_of_file and your file will be ignored again (in case it's mentioned in .gitignore).
 
-	git rm --cached name_of_file  #删除缓存中已经追踪的文件, .gitignore 就会生效 
+	git rm --cached name_of_file  #删除缓存中已经追踪的文件, .gitignore 就会生效
 
 
 #### 2. 关于 .gitconfig 文件
@@ -100,14 +100,14 @@ categories: jekyll update
 
 
 #### 4. gitlab 服务器
-	
+
 	对于公司内网的 git 服务器, gitlab 是大概是业界第一的, 地址看这里<https://github.com/gitlabhq/gitlabhq>
 	一台 ubuntu 的机器, 追加 bitnami.com 他们家的 一键安装包 <https://bitnami.com/stack/gitlab>, 就是一台完美的本地源码服务器
 	当然也可以部署在类似 GCP, AWS 等云服务器上
-	
+
 
 #### 5. git 常用命令
-	
+
 	git add .
 	git commit -m"your comment about this commit"
 
@@ -153,7 +153,7 @@ categories: jekyll update
 	git checkout -b <new_branch> //创建新分支
 	git checkout //显示当前工作区,暂存区与HEAD的差异
 	git checkout HEAD //同上
-	
+
 
 #### 6. xcode build 自增脚本
 
@@ -175,7 +175,8 @@ categories: jekyll update
 	fi
 	exit 0
 
-
+#### 7. ctrip git 提交 gerrit
+		git push origin HEAD:refs/for/rel/6.15
 
 
 [jekyll]:      http://jekyllrb.com
